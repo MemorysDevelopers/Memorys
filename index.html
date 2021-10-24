@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Memorys</title>
+
+    <!-- アドレスバー等のブラウザのUIを非表示 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- default（Safariと同じ） / black（黒） / black-translucent（ステータスバーをコンテンツに含める） -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <!-- ホーム画面に表示されるアプリ名 -->
+    <meta name="apple-mobile-web-app-title" content="Memorys">
+    <!-- ホーム画面に表示されるアプリアイコン -->
+    <link rel="apple-touch-icon" href="img/memoryslogo.jpg">
+
+    <link rel="shortcut icon" href="./img/favicon.ico">
+
+    <link rel="stylesheet" href="./css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/main.css">
+
+    <script type="text/javascript" src="./js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase.js"></script>
+    <script type="text/javascript" src="./js/Moment.min.js"></script>
+
+    <!-- 開発モード -->
+    <!-- <script type="text/javascript" src="./js/vue.js"></script> -->
+    <!-- 本番モード -->
+    <script type="text/javascript" src="./js/vue.min.js"></script>
+
+    <script type="text/javascript" src="./develop-mode.js"></script>
+    <script type="text/javascript" src="./js/config.js"></script>
+    <script type="text/javascript" src="./js/common-functions.js"></script>
+    <script type="text/javascript" src="./js/memorys-ai.js"></script>
+    <script type="text/javascript" src="./js/main.js"></script>
+  </head>
+  <body onLoad="Init();">
+    <div id="memorys" class="container-fluid" v-cloak>
+
+      <!-- ローディングウィンドウ -->
+      <div id="loading-window" class="center-box-fixed" v-if="isLoading">
+        <div class="center-box">
+          <div class="spinner-grow text-success" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ログイン画面 -->
+      <template v-if="page === PAGES.PAGE_LOGIN">
+        <div class="head-box box-sizing-common">
+          <img class="headimage" src="img/memoryslogo.jpg">考え方は人それぞれ
+        </div>
+        <div id="pwa-explanation-box">
+          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#pwa-explanation-modal"><i class="fab fa-apple fa-fw"></i>&nbsp;このアプリをiPhoneに追加してみる</button>
+        </div>
+        <div class="crecive-box">
+          <button type="button" id="update-app-button-in-login" class="btn btn-outline-success" v-on:click="UpdateApp();"><i class="fas fa-upload fa-fw"></i>&nbsp;アプリ更新</button>
+          <button type="button" id="app-explanation-button-in-login" class="btn btn-outline-success" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
+        </div>
+        <div id="sign-in-box" class="crecive-box-ll">
+          <div id="error-message-box" class="form-group">{{loginErrorMessage}}</div>
+          <div class="form-group">
+            <input type="email" class="form-control" id="sign-in-address" placeholder="メールアドレス" v-model="inputSignInUserAddress">
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control" id="sign-in-password" placeholder="パスワード" v-model="inputSignInUserPassword">
+          </div>
+          <div class="form-group">
+            <button type="button" id="sign-up-button" class="btn btn-outline-success box-sizing-common" v-on:click="SignUp();"><i class="far fa-envelope fa-fw"></i>&nbsp;アカウント作成</button>
+            <button type="button" id="sign-in-button" class="btn btn-outline-success box-sizing-common" v-on:click="SignIn();"><i class="far fa-envelope fa-fw"></i>&nbsp;ログイン</button>
+          </div>
+          <div class="form-group crecive-box-l">
+            <button type="button" id="google-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInGoogle();"><i class="fab fa-google fa-fw"></i>&nbsp;Googleでログイン</button>
+          </div>
+          <div class="form-group">
+            <button type="button" id="twitter-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInTwitter();"><i class="fab fa-twitter fa-fw"></i>&nbsp;Twitterでログイン</button>
+          </div>
+          <div class="form-group">
+            <button type="button" id="facebook-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInFacebook();"><i class="fab fa-facebook fa-fw"></i>&nbsp;Facebookでログイン</button>
+          </div>
+          <div class="form-group">
+            <button type="button" id="github-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInGithub();"><i class="fab fa-github fa-fw"></i>&nbsp;Githubでログイン</button>
+          </div>
+        </div>
+        <div class="crecive-box-l">
+          <button type="button" id="move-inquiry-button-in-login" class="btn btn-outline-success" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
+        </div>
+        <div class="row crecive-row"></div>
+        <div class="row crecive-row"></div>
+      </template>
+
+      <!-- トップ画面 -->
+      <template v-else-if="page === PAGES.PAGE_TOP">
+        <!-- ローディングウィンドウ -->
+        <div id="loading-ai-mode" v-if="isAiMode">
+          <div class="center-box">
+            <div class="spinner-grow text-success" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="menu-show" v-on:click="AnimationHeaderMenu();"><i class="fas fa-bars"></i></div>
+        <div id="menu-box" class="shadow container-fluid">
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div id="login-info-box" class="col">ログイン&nbsp;&nbsp;<button type="button" class="btn btn-outline-success" v-on:click="MoveMyPage();"><i class="fas fa-user-cog"></i>&nbsp;マイページ</button></div>
+          </div>
+          <div class="row">
+            <div class="col">{{(signInUser) ? signInUser : {} | ShowLoginUserName}}</div>
+          </div>
+          <div id="analysis-by-datetime-progress-crecive-row" class="row crecive-row"></div>
+          <div class="row">
+            <div class="col">
+              <div id="analysis-by-datetime-progress" class="progress">
+                <div class="progress-bar progress-bar-striped bg-success" role="progressbar" :style="{width:analysisByDatetimeProgress + '%'}" :aria-valuenow="analysisByDatetimeProgress" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </div>
+          </div>
+          <div id="analysis-by-datetime-box-crecive-row" class="row crecive-row"></div>
+          <div class="row">
+            <div id="analysis-by-datetime-box" class="col relative-box">
+              <p></p>
+              <span id="analysis-by-datetime-regist-date" class="memory-list-regist-date"></span>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div class="col-6">
+              <button type="button" id="move-inquiry-button" class="btn btn-outline-success" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
+            </div>
+            <div class="col-6 text-right">
+              <button type="button" id="app-explanation-button" class="btn btn-outline-success" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div class="col-6">
+              <button type="button" id="sign-out-button" class="btn btn-outline-success" v-on:click="SignOut();"><i class="fas fa-sign-out-alt fa-fw"></i>&nbsp;ログアウト</button>
+            </div>
+            <div class="col-6 text-right">
+              <button type="button" id="update-app-button" class="btn btn-outline-success" v-on:click="UpdateApp();"><i class="fas fa-upload fa-fw"></i>&nbsp;アプリ更新</button>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+        </div>
+        <img id="backimage" src="img/memoryslogo.jpg">
+        <div id="access-account-box" class="box-sizing-common">
+          <span class="login-account-image-around" v-for="loginAccountPath in loginAccountList"><img class="login-account-image" :src="loginAccountPath"></span>
+        </div>
+        <textarea id="memory-input" class="form-control" v-model="memoryContent" :style="{height: memoryInputHeight + 'px'}" v-on:change="SaveInputMemory();" v-on:focus="AnimationHideHeaderMenu(); AnimationMemoryInputControl();" v-on:blur="AnimationMemoryInputControl();"></textarea>
+        <div id="memory-input-control" class="icon-color box-sizing-common" :style="{bottom: (memoryInputHeight * 0.2)  + 'px'}">
+          <span class="h1" v-on:click="InsertTaskSymbol();"><i class="fas fa-check-circle"></i></span>
+          <span id="memory-input-control-toggle" class="box-sizing-common h4" v-on:click="AnimationMemoryInputControl();"><i class="fas fa-bars center-box"></i></span>
+        </div>
+        <div class="relative-box" :style="{height: (memoryInputHeight * 0.17)  + 'px'}">
+          <button type="button" id="memory-link-list" class="btn btn-outline-success" v-on:click="MoveMemoryList();"><i class="fas fa-th-list fa-fw"></i>&nbsp;一覧</button>
+          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
+          <button type="button" id="memory-button" class="btn btn-outline-success" v-on:click="ConfirmMemorys();"><i class="fas fa-brain fa-fw"></i>&nbsp;記憶</button>
+        </div>
+      </template>
+
+      <!-- 一覧画面 -->
+      <template v-else-if="page === PAGES.PAGE_LIST">
+        <!-- ローディングウィンドウ -->
+        <div id="loading-list-process" v-if="isListLoading">
+          <div class="center-box">
+            <div class="spinner-grow text-success" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert page-list-head relative-box">
+          <div>{{(signInUser) ? signInUser : {} | ShowLoginUserName}}さんだけの</div>
+          <div>{{listTitle}}一覧</div>
+          <div class="crecive-box" v-if="listType === LIST_TYPE.LIST_MEMORYS">
+            <button type="button" id="ai-search-button" class="btn btn-outline-success" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
+          </div>
+          <div class="icon-color top-right-box-list h4">
+            <span v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;
+            <span v-on:click="SetListType(LIST_TYPE.LIST_TASKS);"><i class="fas fa-tasks"></i></span>
+          </div>
+        </div>
+        <div class="container-fluid">
+          <div class="row mt-3 memory-list-row" v-for="memoryInfo in memoryList" v-show="listType === LIST_TYPE.LIST_MEMORYS">
+            <p :class="'memory-list-content-' + memoryInfo.memoryKey" v-html="$options.filters.ReplaceNewLine(memoryInfo.content)"></p>
+            <span class="memory-list-regist-date">{{memoryInfo.registDate | PreviousDays}}&nbsp;{{memoryInfo.registDate | RegistDateFormatToList}}<button type="button" class="share-button btn btn-sm" :class="(memoryInfo.isShared == '1') ? 'btn-danger' : 'btn-success'" v-on:click="ConfirmShare(memoryInfo);"><i class="fas fa-share fa-fw"></i>{{ (memoryInfo.isShared == '1') ? "&nbsp;解除" : '' }}</button></span>
+          </div>
+          <div class="row mt-3 memory-list-row" v-for="taskInfo in taskList" v-show="listType === LIST_TYPE.LIST_TASKS">
+            <p :id="'task-list-content-' + taskInfo.taskKey" class="task-list-content" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(taskInfo.task))"></p>
+            <span class="memory-list-regist-date">{{taskInfo.registDate | PreviousDays}}&nbsp;{{taskInfo.registDate | RegistDateFormatToList}}<button type="button" class="share-button btn btn-sm btn-success" v-on:click="ConfirmArchive(taskInfo);"><i class="fas fa-file-archive"></i></button></span>
+          </div>
+          <div class="row mb-6"></div>
+          <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+        </div>
+        <span id="load-search-robot-around"><i id="load-search-robot" class="fas fa-robot"></i></span>
+      </template>
+
+      <!-- シェア一覧画面 -->
+      <template v-else-if="page === PAGES.PAGE_SHARE_LIST">
+        <div class="alert page-list-head">
+          <div>シェアアイデア一覧</div>
+        </div>
+        <div class="container-fluid">
+          <div class="row mt-5 memory-list-row relative-box" v-for="memoryInfo in memoryShareList">
+            <span class="share-account-image-around"><img class="share-account-image" :src="memoryInfo.accountImagePath"></span>
+            <p :class="'memory-list-content-' + memoryInfo.memoryKey" v-html="$options.filters.ReplaceNewLine(memoryInfo.content)"></p>
+            <span class="memory-list-regist-date relative-box"><button type="button" class="good-button btn btn-sm btn-success" v-on:click="GoodMemory(memoryInfo, memoryInfo.accountImageUserId);">共感<span class="good-count badge badge-light">{{(memoryInfo.goodCount) ? memoryInfo.goodCount : 0}}</span></button></span>
+          </div>
+          <div class="row mb-6"></div>
+          <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+        </div>
+      </template>
+
+      <!-- お問い合わせ画面 -->
+      <template v-else-if="page === PAGES.PAGE_INQUIRY">
+        <div class="container-fluid">
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <span id="page-inquiry-head">お問い合わせ</span>
+          </div>
+          <div class="row crecive-row"></div>
+          <div id="inquiry-icons" class="row">
+            <div class="col h3">
+              <a href="https://twitter.com/DevelopMemorys" target="_blank"><i class="fab fa-twitter"></i></a>&nbsp;&nbsp;
+              <a href="https://lin.ee/3mg2Vnv" target="_blank"><i class="fab fa-line"></i></a>
+            </div>
+          </div>
+          <div class="row crecive-row" v-if="inquiryCheck"></div>
+          <div class="row" v-if="inquiryCheck">
+            <div class="col">
+              <p id="inquiry-check">{{inquiryCheck}}</p>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label for="inquiry-address">メールアドレス</label>
+                <input type="email" class="form-control" id="inquiry-address" placeholder="name@example.com" v-model="inquiryAddress">
+              </div>
+              <div class="form-group">
+                <label for="inquiry-content">お問い合わせ内容</label>
+                <textarea class="form-control" id="inquiry-content" rows="10" placeholder="content..." v-model="inquiryContent"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div class="col-7 col-sm-10"></div>
+            <div class="col-5 col-sm-2">
+              <button class="form-control btn btn-outline-success" id="inquiry-send" v-on:click="ConfirmInquiry();">送信</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;<span id="returnButtonInInquiry"></span></button>
+      </template>
+      
+      <!-- マイページ画面 -->
+      <template v-else-if="page === PAGES.PAGE_MY">
+        <div class="row crecive-box">
+          <div class="col h3"><i class="far fa-id-card"></i>&nbsp;&nbsp;{{(signInUser) ? signInUser : {} | ShowLoginUserName}}</div>
+        </div>
+        <div class="row crecive-box">
+          <div id="account-image-upload-box" class="col icon-color">
+            <span id="account-image-around"><img id="account-image" :src="accountImage"></span>
+            <span class="h1" v-on:click="SelectAccountImage();"><i class="fas fa-camera"></i></span>
+          </div>
+        </div>
+        <div class="row crecive-box">
+          <div class="col">初期リスト種別選択</div>
+        </div>
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="radio" id="list-type-select-memorys" name="list-type-select" class="list-type-select custom-control-input" value="0" checked>
+          <label class="custom-control-label" for="list-type-select-memorys">アイデア一覧</label>
+        </div>
+        <div class="custom-control custom-radio custom-control-inline">
+          <input type="radio" id="list-type-select-tasks" name="list-type-select" class="list-type-select custom-control-input" value="1">
+          <label class="custom-control-label" for="list-type-select-tasks">タスク一覧</label>
+        </div>
+        <div class="row crecive-box-ll" v-if="isAdminUser">
+          <div class="col">
+            <button type="button" class="btn btn-outline-success" v-on:click="MoveMainte();"><i class="fas fa-cog"></i>&nbsp;メンテナンス</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+        <button type="button" id="update-my-page-button" class="btn btn-success" v-on:click="UpdateMyPage();"><i class="fas fa-user-circle fa-fw"></i>&nbsp;保存</button>
+        <input type="file" id="account-image-select">
+      </template>
+
+      <!-- メンテ画面 -->
+      <template v-else-if="page === PAGES.PAGE_MAINTE && isAdminUser">
+        <div class="row crecive-box">
+          <div class="col">
+            <div class="form-group">
+              <input type="text" class="form-control" v-model="mainteUserId">
+            </div>
+          </div>
+        </div>
+        <div class="row crecive-box">
+          <div class="col">
+            <button type="button" class="btn btn-outline-success" v-on:click="ResetIdeaTrend(mainteUserId);"><i class="fas fa-database"></i>&nbsp;過去思考再解析</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+      </template>
+
+
+
+      <!-- AI解析した過去の思考メモを表示するモーダル -->
+      <div class="modal fade" id="memorys-ai-modal" tabindex="-1" role="dialog" aria-labelledby="memorys-ai-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="memorys-ai-modal-body" class="modal-body">
+              <!-- AI解析した過去の思考メモが表示される -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- iPhoneにMemorysを追加するための説明を表示するモーダル -->
+      <div class="modal fade" id="pwa-explanation-modal" tabindex="-1" role="dialog" aria-labelledby="pwa-explanation-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="pwa-explanation-modal-center-title"></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="pwa-explanation-modal-body" class="modal-body">
+              <div id="pwa-explanation-indicators" class="carousel slide carousel-fade">
+                <div class="carousel-inner">
+                  <div class="carousel-item active">
+                    <img src="./img/pwa_step_1.PNG" class="explanation-img">
+                    <p class="crecive-box">
+                      画面下にあるメニューを開くためのアイコンを押します<br>
+                      ※予め<span class="font-strong">Safariで当アプリを開く</span>必要があります<br v-if="isCopyToClipboard">
+                      <br v-if="isCopyToClipboard">
+                      <button type="button" id="memorys-url-copy-button" class="btn btn-success" v-on:click="CopyMemorysUrl();" v-if="isCopyToClipboard">当アプリURLをコピー&nbsp;<span class="h5"><i class="far fa-clipboard" v-if="isCopyToClipboardSuccess == false"></i><i class="fas fa-clipboard-check" v-if="isCopyToClipboardSuccess"></i></span></button>
+                    </p>
+                  </div>
+                  <div class="carousel-item">
+                    <img src="./img/pwa_step_2.PNG" class="explanation-img">
+                    <p class="crecive-box">
+                      表示されたメニューを少し上にスライドすると、真ん中あたりに「ホーム画面に追加」があるので、そこを押します
+                    </p>
+                  </div>
+                  <div class="carousel-item">
+                    <img src="./img/pwa_step_3.PNG" class="explanation-img">
+                    <p class="crecive-box">
+                      ホーム画面に追加画面が表示されるので、右上にある「追加」を押します
+                    </p>
+                  </div>
+                  <div class="carousel-item">
+                    <img src="./img/pwa_step_4.PNG" class="explanation-img">
+                    <p class="crecive-box">
+                      iPhoneのホーム画面にアプリが追加されます
+                    </p>
+                  </div>
+                </div>
+                <a class="carousel-control-prev" href="#pwa-explanation-indicators" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#pwa-explanation-indicators" role="button" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--Memorysについての説明を表示するモーダル -->
+      <div class="modal fade" id="app-explanation-modal" tabindex="-1" role="dialog" aria-labelledby="app-explanation-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="app-explanation-modal-body" class="modal-body">
+              <div class="container-fluid">
+                <div class="row">
+                  <a href="https://yururito.gradation.jp/MemorysDevelopment/" target="_blank">
+                    <button type="button" class="btn btn-outline-success"><i class="fas fa-envelope-open-text"></i>&nbsp;Release Note</button>
+                  </a>
+                </div>
+                <div class="row crecive-row"></div>
+                <div class="row">
+                  <p>
+                    ●まえがき<br>
+                    人生、日々の生活。小さいものから大きなものまで、考え方次第で全て変わると思っています。誰でも独自の考え方やアイデアを従えて日々過ごしています。それは本当に全て尊いものだと私は思っています。<br>
+                    是非自分のアイデアを誇りに思うと同時に、人のアイデア、考え方から学びながら日々を豊かなものにしてほしいと願っています。<br>
+                    <br>
+                    ●アプリの目的<br>
+                    このアプリは、あなたの中に存在する大切なアイデアや考え方を可視化・分析し、より自分の思考パターンを知ることで日々の生活でのメンタル要素を豊かにしていく事を目的としています。<br>
+                    <br>
+                    ●利用について<br>
+                    このアプリは全ての機能を無料で利用することができます。人に共有することも自由ですし、サイトやSNSに掲載して頂いても構いません。<br>
+                    <br>
+                    ●機能紹介<br>
+                    ・AIによるアイデアの分析<br>
+                    &nbsp;&nbsp;投稿されたアイデアをAIが解析し、分析した結果をユーザーへ提供する機能になります。当アプリの中核となる機能になります。<br>
+                    <br>
+                    ・アイデアの記憶<br>
+                    &nbsp;&nbsp;入力したアイデアや考え方をデータベースに記憶していく機能になります。一覧での閲覧や分析での元となる機能です。<br>
+                    <br>
+                    ・アイデアの呼び出し<br>
+                    &nbsp;&nbsp;随所のタイミングにおいて、記憶した情報を元に、かつてのアイデアや考え方を呼び出します。一覧でも遡れば確認する事ができる情報ですが、アプリが選出した情報を自動選択し提示する機能を提供しています。<br>
+                    <br>
+                    ・アイデアのシェア<br>
+                    &nbsp;&nbsp;通常記憶されるアイデアについては、あなた自身しか見る事ができませんが、シェアする事により、他のユーザーにも共有する事ができます。みんなに知って欲しい考え方について共有してみてください。<br>
+                    <br>
+                    ・共感<br>
+                    &nbsp;&nbsp;シェアされたアイデアに対して共感を示す事ができます。ひとりひとつの共感ではなく、何度でも共感を示す事ができます。何人から共感されたという事ではなく、どんな度合いで共感されているのかを示すバロメーターとしてみてください。<br>
+                    <br>
+                    ・アプリの更新<br>
+                    &nbsp;&nbsp;更新ボタンを押す事でアプリ全体を更新する事ができます。開発者によりアプリが更新された際には、このボタンを押す事で機能をアップデートしてください。また、動作がおかしいと感じた際にも利用してみてください。<br>
+                    <br>
+                    ●禁止事項<br>
+                    ・アプリを形成しているコードを解析し、コピーすることで自分のアプリとして振る舞う行為を禁止致します。参考にして頂くことは構いませんので、是非自分のアイデアで作成してみてください。<br>
+                    <br>
+                    ・自由なアイデアや考え方を通じて交流する場とも考えていますが、暴力的な言葉や相手の考え方をただただ否定するような投稿はおやめください。見つけ次第削除、および投稿者への注意喚起を行います。<br>
+                    <br>
+                    ・できるだけお互いに認め合える場にしていきたい思いが強いので、是非ご協力よろしくお願い致します。<br>
+                    <br>
+                    ●アプリ情報<br>
+                    現在の最新アプリバージョン：2.2<br>
+                    リリース日：2021/09/23<br>
+                    <br>
+                    ●お問い合わせ先<br>
+                    開発用Twitter：@DevelopMemorys<br>
+                    個人Twitter:@kosuke0330<br>
+                    LINE@：@guk8764d<br>
+                    GMail：lowtone03@gmail.com<br>
+                    <br>
+                    ●記載日<br>
+                    2021/09/23
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- シェア実行を確認するモーダル -->
+      <div class="modal fade" id="confirm-share-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-share-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="confirm-share-modal-body" class="modal-body">
+              {{confirmShareMemory.content}}
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="ShareMemory(confirmShareMemory);">シェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}する</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 記憶内容を確認するモーダル -->
+      <div class="modal fade" id="confirm-memorys-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-memorys-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="confirm-memorys-modal-body" class="modal-body" v-html="IsContentTask() ? $options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(memoryContent)) : memoryContent"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="RegistMemory();">記憶する</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- お問い合わせ内容を確認するモーダル -->
+      <div class="modal fade" id="inquiry-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="inquiry-confirm-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div>■返信用メールアドレス</div>
+              <p>{{inquiryAddress}}</p>
+              <div>■お問い合わせ内容</div>
+              <p v-html="$options.filters.ReplaceNewLine(inquiryContent)"></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="SendInquiry();">送信</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- お問い合わせ処理結果を表示するモーダル -->
+      <div class="modal fade" id="inquiry-result-modal" tabindex="-1" role="dialog" aria-labelledby="inquiry-result-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" v-html="inquiryResult"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" data-dismiss="modal">OK</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- マイページ更新結果を表示するモーダル -->
+      <div class="modal fade" id="update-my-page-result-modal" tabindex="-1" role="dialog" aria-labelledby="update-my-page-result-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" v-html="updateMyPageResult"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="UpdateApp();">OK</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI検索キーワードを入力するモーダル -->
+      <div class="modal fade" id="ai-search-list-modal" tabindex="-1" role="dialog" aria-labelledby="ai-search-list-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <textarea id="list-ai-search-text" class="form-control" v-model="listAiSearchText" :style="{height: (memoryInputHeight * 0.80) + 'px'}"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="SearchAiFromMemoryList();">検索</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- アーカイブを確認するモーダル -->
+      <div class="modal fade" id="confirm-archive-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-archive-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="confirm-share-modal-body" class="modal-body" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(confirmArchive.task))"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="ArchiveTask(confirmArchive);">アーカイブする</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
