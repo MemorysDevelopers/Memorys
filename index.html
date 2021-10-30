@@ -283,6 +283,11 @@
           <input type="radio" id="list-type-select-tasks" name="list-type-select" class="list-type-select custom-control-input" value="1">
           <label class="custom-control-label" for="list-type-select-tasks">タスク一覧</label>
         </div>
+        <div id="trend-box" class="row crecive-box text-center">
+          <div class="alert alert-success" role="alert" v-for="trendInfo in topMemoryTrendList">
+            {{trendInfo.trend}}&nbsp;<span class="badge badge-success">{{trendInfo.trendCount}}</span>
+          </div>
+        </div>
         <div class="row crecive-box-ll" v-if="isAdminUser">
           <div class="col">
             <button type="button" class="btn btn-outline-success" v-on:click="MoveMainte();"><i class="fas fa-cog"></i>&nbsp;メンテナンス</button>
