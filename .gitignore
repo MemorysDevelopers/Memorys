@@ -2,5 +2,5 @@ js/config.js
 develop-mode.js
 Api/Log/Debug/
 Api/Log/Error/
-Api/DB/Log/
 img/AccountImage/
+Api/DB/Log/

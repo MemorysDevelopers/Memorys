@@ -29,6 +29,7 @@ function Init() {
       memoryList: [],  // 思考リスト
       memoryShareList: [],  // シェア対象思考リスト
       confirmShareMemory: {},  // シェア確認対象思考メモ情報
+      topMemoryTrendList: [],
 
       page: 1,  // ページ識別子
       // ページ識別子定数定義
@@ -737,6 +738,11 @@ function Init() {
           this.loginErrorMessage = 'メールアドレスによるログインを行うには、パスワードを入力してください。';
           return;
         }
+        let alphaOutCheck = /[^A-Za-z0-9-\._@]/;
+        if (alphaOutCheck.test(this.inputSignInUserAddress)) {
+          this.loginErrorMessage = 'メールアドレスに利用できない文字が含まれています。';
+          return;
+        }
 
         if (this.inputSignInUserAddress && this.inputSignInUserPassword) {
 
@@ -893,6 +899,11 @@ function Init() {
         }
         if (IsEmpty(this.inputSignInUserPassword)) {
           this.loginErrorMessage = 'アカウント作成を行うには、アカウント用のパスワードを入力してください。';
+          return;
+        }
+        let alphaOutCheck = /[^A-Za-z0-9-\._@]/;
+        if (alphaOutCheck.test(this.inputSignInUserAddress)) {
+          this.loginErrorMessage = 'メールアドレスに利用できない文字が含まれています。';
           return;
         }
 
@@ -1231,6 +1242,9 @@ function Init() {
 
         // 保存していたユーザー設定を適用する
         await this.SettingUserConfigToMyPage(this.userConfig);
+
+        // トップトレンド情報を表示する
+        await this.GetTopTrendList();
 
         // デフォルトイメージか保存したアカウントイメージか判定する
         if (this.accountImage != DEFAULT_ACCOUNT_IMAGE) {
@@ -1809,6 +1823,27 @@ function Init() {
           this.listTitle = 'タスク';
 
         }
+      },
+      // トップトレンド情報を取得する
+      GetTopTrendList: function() {
+        let self = this;
+        self.topMemoryTrendList = [];
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/DB/select_top_idea_trend.php', {userId:self.signInUser.uid, selectCount:10}, function(res) {
+              if (res != '0') {
+                let topTrendList = JSON.parse(decodeURIComponent(res));
+                Object.keys(topTrendList).forEach(function(topTrend) {
+                  self.topMemoryTrendList.push({
+                    trend: topTrend,
+                    trendCount: topTrendList[topTrend],
+                  });
+                });
+              }
+              resolve();
+            });
+          });
+        });
       },
     },
     filters: {

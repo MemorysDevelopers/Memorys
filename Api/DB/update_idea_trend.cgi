@@ -1,4 +1,5 @@
 #!/usr/bin/python3.6
+# ↑ それぞれのローカル環境に合わせたPythonファイルまでのパスの記載が必要です
 
 import sys
 import json

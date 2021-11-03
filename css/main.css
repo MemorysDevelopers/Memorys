@@ -452,3 +452,8 @@ body {
   position: fixed;
   right: 5%;
 }
+
+#trend-box {
+  display: flex;
+  justify-content: space-evenly;
+}
