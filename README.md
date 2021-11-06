@@ -6,11 +6,17 @@
 
 ## 開発環境
 ### まずは、ローカルPCに開発するための環境を整えます
-具体的には、**XAMPP**と呼ばれるツールをダウンロード・インストールする事のみとなります。
+#### ローカルにサーバーを用意する（XAMPPやMAMPをインストールする）
+具体的には、**XAMPP**、**MAMP**と呼ばれるツールをダウンロード・インストールする事のみとなります。  
+イメージとしては、WindowsはXAMPP、MacはMAMPとなります。
 
-ダウンロード先：[https://www.apachefriends.org/jp/download.html](https://www.apachefriends.org/jp/download.html)
+XAMPPダウンロード先：[https://www.apachefriends.org/jp/download.html](https://www.apachefriends.org/jp/download.html)  
+MAMPダウンロード先：[https://www.mamp.info/en/downloads/](https://www.mamp.info/en/downloads/)
 
 ※ダウンロード方法については、こちらの記事が参考になります。[https://www.webdesignleaves.com/pr/plugins/xampp_01.html](https://www.webdesignleaves.com/pr/plugins/xampp_01.html)
+
+#### エディタを用意する
+FukudaはVisual Studio Codeで開発しています。
 
 ## Git利用方法
 ### こちらの記事が勉強になります。
