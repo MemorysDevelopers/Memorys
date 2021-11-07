@@ -4,7 +4,7 @@ function Init() {
     el: '#memorys',
     data: {
       // アプリバージョン
-      appVersion: '2.2',
+      appVersion: '2.3',
 
       // デバイス情報
       deviceInfo: {},
@@ -89,6 +89,13 @@ function Init() {
       isListLoading: false,
       confirmArchive: {},
       isTaskClickStop: false,
+
+      // LINE通知関連
+      lineNotifyToken: '',
+
+      // 通知モーダル関連
+      modalNotifyTitle: '',
+      modalNotifyContent: '',
 
     },
     // インスタンス作成時に呼び出される
@@ -884,7 +891,18 @@ function Init() {
           // ロードアイコンを表示
           this.isLoading = false;
 
-          this.loginErrorMessage = '認証中にエラーが発生しました。何度認証してもログインできない場合は、管理者へお問い合わせください。';
+          if (error.code == 'auth/popup-closed-by-user') {
+            this.loginErrorMessage = '認証が中断されました。';
+
+          } else {
+            if (error.code == 'auth/account-exists-with-different-credential') {
+              this.loginErrorMessage = '既に同一のメールアドレスで認証を受けているアカウントが存在します。心当たりがない場合は、管理者へお問い合わせください。';
+  
+            } else {
+              this.loginErrorMessage = '認証中にエラーが発生しました。何度認証してもログインできない場合は、管理者へお問い合わせください。';
+  
+            }
+          }
         });
       },
       // アカウント作成処理を行う
@@ -1365,6 +1383,7 @@ function Init() {
 
               await firebase.database().ref('UserConfig/' + self.signInUser.uid).set({
                 defaultListType: configListType,
+                lineNotifyToken: self.lineNotifyToken,
               });
   
               resolve(true);
@@ -1454,7 +1473,9 @@ function Init() {
             if (configVal) {
 
               // デフォルトリスト種別
-              self.userConfig['defaultListType'] = configVal['defaultListType'];
+              self.userConfig['defaultListType'] = (configVal['defaultListType']) ? configVal['defaultListType'] : '';
+              // LINE通知トークン
+              self.userConfig['lineNotifyToken'] = (configVal['lineNotifyToken']) ? configVal['lineNotifyToken'] : '';
             
             }
           });
@@ -1469,8 +1490,10 @@ function Init() {
           if (userConfig) {
             $(function() {
               
-              // // デフォルトリスト種別
+              // デフォルトリスト種別
               $('input:radio[name="list-type-select"]').val([userConfig['defaultListType']]);
+              // LINE通知トークン
+              self.lineNotifyToken = userConfig['lineNotifyToken'];
               
               resolve();
             
@@ -1844,6 +1867,33 @@ function Init() {
             });
           });
         });
+      },
+      // LINE通知テストを実行する
+      LineNotifyTest: function() {
+        if (this.lineNotifyToken) {
+          let self = this;
+          $(function() {
+            $.post('./Api/LINE/LineNotify.php', {'testNotifyMessage': 'MemorysからのLINE通知テストが成功しました。', 'testNotifyToken': self.lineNotifyToken});
+          });
+
+          this.ShowNotifyModal('LINE通知テスト', 'LINE通知テストが実行されました。');
+        
+        } else {
+          this.ShowNotifyModal('LINE通知テスト', 'LINE Notify API用のトークンを入力してから、LINE通知テストを行ってください。');
+
+        }
+      },
+      // ユーザーへの通知内容をモーダル表示する
+      ShowNotifyModal: function(notifyTitle, notifyContent) {
+        this.modalNotifyTitle = notifyTitle;
+        this.modalNotifyContent = notifyContent;
+        $('#notify-modal').modal('show');
+      },
+      // ユーザーへの通知内容を表示しているモーダルを閉じる
+      HideNotifyModal: function() {
+        this.modalNotifyTitle = '';
+        this.modalNotifyContent = '';
+        $('#notify-modal').modal('hide');
       },
     },
     filters: {

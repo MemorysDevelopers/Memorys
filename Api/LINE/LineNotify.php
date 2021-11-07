@@ -12,6 +12,11 @@ if (strlen($notifyMessage) > 0) {
     NotifyChat($notifyMessage);
 }
 
+// LINE通知テストを送信する
+if (isset($_POST["testNotifyMessage"]) && isset($_POST["testNotifyToken"])) {
+    NotifyLine($_POST["testNotifyMessage"], $_POST["testNotifyToken"]);
+}
+
 /**
  * サイトアクセス通知
  * @param $message アクセス通知を行う際のメッセージ内容

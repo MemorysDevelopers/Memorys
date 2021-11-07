@@ -272,6 +272,9 @@
             <span class="h1" v-on:click="SelectAccountImage();"><i class="fas fa-camera"></i></span>
           </div>
         </div>
+        <div class="row crecive-row"></div>
+        <hr color="#a9a9a9">
+
         <div class="row crecive-box">
           <div class="col">初期リスト種別選択</div>
         </div>
@@ -282,6 +285,37 @@
         <div class="custom-control custom-radio custom-control-inline">
           <input type="radio" id="list-type-select-tasks" name="list-type-select" class="list-type-select custom-control-input" value="1">
           <label class="custom-control-label" for="list-type-select-tasks">タスク一覧</label>
+        </div>
+        <div class="row crecive-row"></div>
+        <hr color="#a9a9a9">
+
+        <div class="row crecive-box">
+          <div class="col">LINE通知登録</div>
+        </div>
+        <div class="row crecive-box">
+          <div class="col">
+            <div class="form-group">
+              <input type="text" class="form-control" v-model="lineNotifyToken">
+            </div>
+            <p>
+              こちらにはLINE Notify APIにて利用されるトークンを登録してください。<br>
+              トークンの発行は<a href="https://notify-bot.line.me/ja/" target="_blank">こちら</a>から行うことができます。<br>
+              <span class="font-strong">※スマホから開く場合は、PC版のサイトとして開く必要があります</span>
+            </p>
+          </div>
+        </div>
+        <div class="row crecive-box">
+          <div class="col">
+            <div class="form-group">
+              <button type="button" class="btn btn-success" v-on:click="LineNotifyTest();">LINE通知テスト</button>
+            </div>
+          </div>
+        </div>
+        <div class="row crecive-row"></div>
+        <hr color="#a9a9a9">
+
+        <div class="row crecive-box">
+          <div class="col">アイデア傾向ランキング</div>
         </div>
         <div id="trend-box" class="row crecive-box text-center">
           <div class="alert alert-success" role="alert" v-for="trendInfo in topMemoryTrendList">
@@ -429,6 +463,12 @@
                     ・AIによるアイデアの分析<br>
                     &nbsp;&nbsp;投稿されたアイデアをAIが解析し、分析した結果をユーザーへ提供する機能になります。当アプリの中核となる機能になります。<br>
                     <br>
+                    ・AI検索<br>
+                    &nbsp;&nbsp;投稿されたアイデアから、入力された文章と似たような内容のものをAIが探しだす機能になります。<br>
+                    <br>
+                    ・タスク管理<br>
+                    &nbsp;&nbsp;アイデアを入力している際に表示されるツールボックス内のチェックアイコンを押すことで、タスク管理用のアイデアとして保存を行うことができます。それにより、入力した内容でタスク管理を行えるようになります。<br>
+                    <br>
                     ・アイデアの記憶<br>
                     &nbsp;&nbsp;入力したアイデアや考え方をデータベースに記憶していく機能になります。一覧での閲覧や分析での元となる機能です。<br>
                     <br>
@@ -452,8 +492,8 @@
                     ・できるだけお互いに認め合える場にしていきたい思いが強いので、是非ご協力よろしくお願い致します。<br>
                     <br>
                     ●アプリ情報<br>
-                    現在の最新アプリバージョン：2.2<br>
-                    リリース日：2021/09/23<br>
+                    現在の最新アプリバージョン：2.3<br>
+                    リリース日：2021/10/05<br>
                     <br>
                     ●お問い合わせ先<br>
                     開発用Twitter：@DevelopMemorys<br>
@@ -462,7 +502,7 @@
                     GMail：lowtone03@gmail.com<br>
                     <br>
                     ●記載日<br>
-                    2021/09/23
+                    2021/11/03
                   </p>
                 </div>
               </div>
@@ -613,6 +653,24 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-success" v-on:click="ArchiveTask(confirmArchive);">アーカイブする</button>
               <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通知内容を表示するモーダル -->
+      <div class="modal fade" id="notify-modal" tabindex="-1" role="dialog" aria-labelledby="notify-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" v-html="modalNotifyContent"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="HideNotifyModal();">OK</button>
             </div>
           </div>
         </div>
