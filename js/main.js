@@ -1474,10 +1474,34 @@ function Init() {
 
               // デフォルトリスト種別
               self.userConfig['defaultListType'] = (configVal['defaultListType']) ? configVal['defaultListType'] : '';
-              // LINE通知トークン
-              self.userConfig['lineNotifyToken'] = (configVal['lineNotifyToken']) ? configVal['lineNotifyToken'] : '';
             
+            } else {
+              // ユーザー設定を初期化する
+              firebase.database().ref('UserConfig/' + self.signInUser.uid).set({
+                defaultListType: '0',
+              });
+
+              self.userConfig['defaultListType'] = '0';
             }
+
+            firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).once('value', function(configOpen) {
+              let configOpenVal = configOpen.val();
+              if (configOpenVal) {
+  
+                // LINE通知トークン
+                self.userConfig['lineNotifyToken'] = (configOpenVal['lineNotifyToken']) ? configOpenVal['lineNotifyToken'] : '';
+              
+              } else {
+                // ユーザー設定を初期化する
+                firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).set({
+                  lineNotifyToken: '',
+                });
+  
+                self.userConfig['lineNotifyToken'] = '';
+              }
+  
+              resolve();
+            });
           });
         });
       },

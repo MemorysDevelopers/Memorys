@@ -10,6 +10,8 @@ try {
 
   $functions = new PostFunctions();
   $response = $functions->ExecutePost($paramTrendQuery, MAIN_HOST . DB_API_SELECT_IDEA_TREND);
+  // 改行コードを削る
+  $response = str_replace("\n", '', str_replace("\r", '', $response));
 
   if ($response != '0') {
     // 取得したトレンド情報からトップトレンドを選別する

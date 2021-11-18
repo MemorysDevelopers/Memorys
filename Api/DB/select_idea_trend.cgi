@@ -71,7 +71,7 @@ try:
 
   # 更新前に登録されているアイデア情報を取得する
   ideaTrendList = GetIdeaTrendList(userId)
-  responseApi = ideaTrendList
+  responseApi = ideaTrendList if len(ideaTrendList) > 0 else '0'
 
 except Exception as e:
   OutLog('Error : {0} '.format(e) + traceback.format_exc())
