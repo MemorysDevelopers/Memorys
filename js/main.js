@@ -97,6 +97,9 @@ function Init() {
       modalNotifyTitle: '',
       modalNotifyContent: '',
 
+      // コミュニティ機能関連
+      isInvitationable: false,
+
     },
     // インスタンス作成時に呼び出される
     created: async function() {
@@ -1383,7 +1386,11 @@ function Init() {
 
               await firebase.database().ref('UserConfig/' + self.signInUser.uid).set({
                 defaultListType: configListType,
+              });
+
+              await firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).set({
                 lineNotifyToken: self.lineNotifyToken,
+                isInvitationable: self.isInvitationable,
               });
   
               resolve(true);
@@ -1490,14 +1497,23 @@ function Init() {
   
                 // LINE通知トークン
                 self.userConfig['lineNotifyToken'] = (configOpenVal['lineNotifyToken']) ? configOpenVal['lineNotifyToken'] : '';
+                
+                // コミュニティ招待許可
+                if (configOpenVal['isInvitationable']) {
+                  self.userConfig['isInvitationable'] = configOpenVal['isInvitationable'];
+                } else {
+                  self.userConfig['isInvitationable'] = false;
+                }
               
               } else {
                 // ユーザー設定を初期化する
                 firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).set({
                   lineNotifyToken: '',
+                  isInvitationable: false,
                 });
   
                 self.userConfig['lineNotifyToken'] = '';
+                self.userConfig['isInvitationable'] = false;
               }
   
               resolve();
@@ -1518,6 +1534,8 @@ function Init() {
               $('input:radio[name="list-type-select"]').val([userConfig['defaultListType']]);
               // LINE通知トークン
               self.lineNotifyToken = userConfig['lineNotifyToken'];
+              // コミュニティ招待許可
+              self.isInvitationable = userConfig['isInvitationable'];
               
               resolve();
             
