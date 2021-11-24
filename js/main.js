@@ -92,6 +92,7 @@ function Init() {
 
       // LINE通知関連
       lineNotifyToken: '',
+      selectCovidNotifyArea: 'noNotify',
 
       // 通知モーダル関連
       modalNotifyTitle: '',
@@ -1392,6 +1393,19 @@ function Init() {
                 lineNotifyToken: self.lineNotifyToken,
                 isInvitationable: self.isInvitationable,
               });
+
+              if (self.selectCovidNotifyArea == 'noNotify') {
+                // 削除する
+                await firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).remove();
+
+              } else {
+                // 登録する
+                await firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).set({
+                  area: self.selectCovidNotifyArea,
+                  lineNotifyToken: self.lineNotifyToken,
+                });
+                
+              }
   
               resolve(true);
             });
@@ -1516,7 +1530,23 @@ function Init() {
                 self.userConfig['isInvitationable'] = false;
               }
   
-              resolve();
+              firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).once('value', function(covid19NotifyConfig) {
+                let covid19NotifyConfigVal = covid19NotifyConfig.val();
+                if (covid19NotifyConfigVal) {
+                  
+                  // コロナ感染者数の通知対象エリア
+                  if (covid19NotifyConfigVal['area']) {
+                    self.userConfig['selectCovidNotifyArea'] = covid19NotifyConfigVal['area'];
+                  } else {
+                    self.userConfig['selectCovidNotifyArea'] = 'noNotify';
+                  }
+                
+                } else {
+                  self.userConfig['selectCovidNotifyArea'] = 'noNotify';
+                }
+    
+                resolve();
+              });
             });
           });
         });
@@ -1536,6 +1566,8 @@ function Init() {
               self.lineNotifyToken = userConfig['lineNotifyToken'];
               // コミュニティ招待許可
               self.isInvitationable = userConfig['isInvitationable'];
+              // コロナ感染情報通知エリア
+              self.selectCovidNotifyArea = self.userConfig['selectCovidNotifyArea'];
               
               resolve();
             
