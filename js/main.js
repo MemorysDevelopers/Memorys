@@ -92,10 +92,14 @@ function Init() {
 
       // LINE通知関連
       lineNotifyToken: '',
+      selectCovidNotifyArea: 'noNotify',
 
       // 通知モーダル関連
       modalNotifyTitle: '',
       modalNotifyContent: '',
+
+      // コミュニティ機能関連
+      isInvitationable: false,
 
     },
     // インスタンス作成時に呼び出される
@@ -1383,8 +1387,25 @@ function Init() {
 
               await firebase.database().ref('UserConfig/' + self.signInUser.uid).set({
                 defaultListType: configListType,
-                lineNotifyToken: self.lineNotifyToken,
               });
+
+              await firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).set({
+                lineNotifyToken: self.lineNotifyToken,
+                isInvitationable: self.isInvitationable,
+              });
+
+              if (self.selectCovidNotifyArea == 'noNotify') {
+                // 削除する
+                await firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).remove();
+
+              } else {
+                // 登録する
+                await firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).set({
+                  area: self.selectCovidNotifyArea,
+                  lineNotifyToken: self.lineNotifyToken,
+                });
+                
+              }
   
               resolve(true);
             });
@@ -1490,17 +1511,42 @@ function Init() {
   
                 // LINE通知トークン
                 self.userConfig['lineNotifyToken'] = (configOpenVal['lineNotifyToken']) ? configOpenVal['lineNotifyToken'] : '';
+                
+                // コミュニティ招待許可
+                if (configOpenVal['isInvitationable']) {
+                  self.userConfig['isInvitationable'] = configOpenVal['isInvitationable'];
+                } else {
+                  self.userConfig['isInvitationable'] = false;
+                }
               
               } else {
                 // ユーザー設定を初期化する
                 firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).set({
                   lineNotifyToken: '',
+                  isInvitationable: false,
                 });
   
                 self.userConfig['lineNotifyToken'] = '';
+                self.userConfig['isInvitationable'] = false;
               }
   
-              resolve();
+              firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).once('value', function(covid19NotifyConfig) {
+                let covid19NotifyConfigVal = covid19NotifyConfig.val();
+                if (covid19NotifyConfigVal) {
+                  
+                  // コロナ感染者数の通知対象エリア
+                  if (covid19NotifyConfigVal['area']) {
+                    self.userConfig['selectCovidNotifyArea'] = covid19NotifyConfigVal['area'];
+                  } else {
+                    self.userConfig['selectCovidNotifyArea'] = 'noNotify';
+                  }
+                
+                } else {
+                  self.userConfig['selectCovidNotifyArea'] = 'noNotify';
+                }
+    
+                resolve();
+              });
             });
           });
         });
@@ -1518,6 +1564,10 @@ function Init() {
               $('input:radio[name="list-type-select"]').val([userConfig['defaultListType']]);
               // LINE通知トークン
               self.lineNotifyToken = userConfig['lineNotifyToken'];
+              // コミュニティ招待許可
+              self.isInvitationable = userConfig['isInvitationable'];
+              // コロナ感染情報通知エリア
+              self.selectCovidNotifyArea = self.userConfig['selectCovidNotifyArea'];
               
               resolve();
             
