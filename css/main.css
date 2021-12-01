@@ -61,6 +61,16 @@ body {
   -webkit-transform: translate(-50%, -50%);
   top: 5%;
 }
+.center-box-absolute {
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  top: 50%;
+}
 .center-box-absolute-vertical {
   position: absolute;
   transform: translateY(-50%);
@@ -456,4 +466,24 @@ body {
 #trend-box {
   display: flex;
   justify-content: space-evenly;
+}
+
+
+/* 通知アニメーション */
+.share-notify-animation {
+  animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
+  -moz-animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
+  -ms-animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
+  -o-animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
+  -webkit-animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
+  border-color: #28a745;
+  border-width: 0;
+}
+@keyframes share-notify-animation-exe {
+  from {
+    border-width: 0;
+  }
+  to {
+    border-width: 5px;
+  }
 }

@@ -159,7 +159,7 @@
         </div>
         <div class="relative-box" :style="{height: (memoryInputHeight * 0.17)  + 'px'}">
           <button type="button" id="memory-link-list" class="btn btn-outline-success" v-on:click="MoveMemoryList();"><i class="fas fa-th-list fa-fw"></i>&nbsp;一覧</button>
-          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
+          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();" :class="(isShareNotify == true) ? 'share-notify-animation' : ''"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
           <button type="button" id="memory-button" class="btn btn-outline-success" v-on:click="ConfirmMemorys();"><i class="fas fa-brain fa-fw"></i>&nbsp;記憶</button>
         </div>
       </template>
@@ -295,7 +295,7 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <input type="text" class="form-control" v-model="lineNotifyToken">
+              <input id="input-line-notify-token" type="text" class="form-control" placeholder="LINE通知用トークン" v-model="lineNotifyToken">
             </div>
             <p>
               こちらにはLINE Notify APIにて利用されるトークンを登録してください。<br>
@@ -327,7 +327,7 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <label for="area-select">コロナ感染者数通知対象の県</label>
+              <label for="area-select">コロナ感染者数通知対象の都道府県</label>
               <select class="form-control" id="area-select" v-model="selectCovidNotifyArea">
                 <option value="noNotify">通知しない</option>
                 <option value="aichi">愛知県</option>
@@ -380,7 +380,7 @@
               </select>
             </div>
             <p>
-              こちらから、LINEに向けてコロナ感染情報を通知したい対象の県を選択してください。
+              こちらから、LINEに向けてコロナ感染情報を通知したい対象の都道府県を選択してください。
             </p>
           </div>
         </div>

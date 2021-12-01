@@ -101,6 +101,9 @@ function Init() {
       // コミュニティ機能関連
       isInvitationable: false,
 
+      // シェア通知フラグ
+      isShareNotify: false,
+
     },
     // インスタンス作成時に呼び出される
     created: async function() {
@@ -157,6 +160,9 @@ function Init() {
 
       // リスト種別初期値
       this.InitializeListType();
+
+      // シェア通知判定用のイベントを定義
+      this.EventShareNotify();
       
     },
     updated: function() {
@@ -201,7 +207,7 @@ function Init() {
           analysisAiResult = await this.memoryAi.AnalysisAi(this.memoryContent);
         }
         
-        // ロードアイコンを表示
+        // ロードアイコンを非表示
         this.isLoading = false;
 
         // 思考メモ入力初期化
@@ -526,6 +532,9 @@ function Init() {
             //$.post('./Api/LINE/LineNotify.php', {'accessMessage': 'シェアリストにアクセスがありました。'});
           });
         }
+
+        // シェア通知を解除する
+        this.ClearShareNotify();
       },
       // アドレスバーを除いたウィンドウ高さを取得する
       SetInnerWindowHeight: function() {
@@ -581,6 +590,9 @@ function Init() {
               $.post('./Api/LINE/LineNotify.php', {'notifyMessage': '思考メモがシェアされました。'});
             });
           }
+
+          // 全ユーザーへシェア通知を行う
+          this.NotifyShareToAllUsers();
 
         }
 
@@ -1968,6 +1980,29 @@ function Init() {
         this.modalNotifyTitle = '';
         this.modalNotifyContent = '';
         $('#notify-modal').modal('hide');
+      },
+      // シェア通知判定を行う
+      EventShareNotify: function() {
+        let self = this;
+        firebase.database().ref('ShareNotify/' + this.signInUser.uid).on('value', function(shareNotifyInfo) {
+          self.isShareNotify = shareNotifyInfo.val();
+        });
+      },
+      // 全ユーザーへシェア通知を行う
+      NotifyShareToAllUsers: function() {
+        let self = this;
+        firebase.database().ref('LoginUserAccessInfo').once('value', function(allUsers) {
+          let allUsersVal = allUsers.val();
+          Object.keys(allUsersVal).forEach(function(shareNotifyUserId) {
+            if (self.signInUser.uid != shareNotifyUserId) {
+              firebase.database().ref('ShareNotify/' + shareNotifyUserId).set(true);
+            }
+          });
+        });
+      },
+      // シェア通知を解除する
+      ClearShareNotify: function() {
+        firebase.database().ref('ShareNotify/' + this.signInUser.uid).set(false);
       },
     },
     filters: {
