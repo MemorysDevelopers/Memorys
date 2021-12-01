@@ -1318,8 +1318,24 @@ function Init() {
           });
         });
       },
+      // ユーザー設定登録時の入力チェックを行う
+      IsProbremInputConfig: function() {
+        let isProbrem = false;
+        
+        if (this.selectCovidNotifyArea != 'noNotify' && this.lineNotifyToken.trim().length == 0) {
+          isProbrem = true;
+          this.ShowNotifyModal('ユーザー設定時の入力チェック', 'LINE通知用のトークンを入力してください。');
+        }
+
+        return isProbrem;
+      },
       // マイページを更新する
       UpdateMyPage: async function() {
+
+        // 入力チェック
+        if (await this.IsProbremInputConfig()) {
+          return;
+        }
 
         // マイページ更新結果
         let failedCount = 0;
