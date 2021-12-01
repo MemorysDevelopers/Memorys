@@ -155,6 +155,18 @@ body {
   width: 200px;
 }
 
+#vision-loading {
+  background-color: white;
+  height: 100%;
+  opacity: 0.8;
+  width: 100%;
+  z-index: 999;
+}
+#vision-loading .spinner-grow {
+  height: 200px;
+  width: 200px;
+}
+
 #loading-ai-mode {
   height: 30px;
   left: 5px;
@@ -244,6 +256,32 @@ body {
 }
 #analysis-by-datetime-box span {
   height: 20px;
+}
+
+#vision-camera-box {
+  text-align: center;
+  width: 100%;
+}
+#vision-camera-box span .fa-image {
+  font-size: 70px;
+}
+#vision-image {
+  border: 2px solid rgb(1, 179, 1);
+  border-radius: 10px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  height: 200px;
+  opacity: 0.3;
+  width: 200px;
+}
+#vision-image-around {
+  margin-right: 10px;
+}
+#vision-image-select {
+  display: none;
 }
 
 #memory-button {
