@@ -14,3 +14,5 @@ const DB_API_XXXX = 'Api/DB/connect_test.cgi';
 const DB_API_UPDATE_IDEA_TREND = 'Api/DB/update_idea_trend.cgi';
 const DB_API_DELETE_IDEA_TREND = 'Api/DB/delete_idea_trend.cgi';
 const DB_API_SELECT_IDEA_TREND = 'Api/DB/select_idea_trend.cgi';
+
+const VISION_API = 'https://xxtomqfz3d.execute-api.ap-northeast-1.amazonaws.com/Memorys';
