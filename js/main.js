@@ -4,7 +4,7 @@ function Init() {
     el: '#memorys',
     data: {
       // アプリバージョン
-      appVersion: '2.3',
+      appVersion: '3.0',
 
       // デバイス情報
       deviceInfo: {},
@@ -30,6 +30,7 @@ function Init() {
       memoryShareList: [],  // シェア対象思考リスト
       confirmShareMemory: {},  // シェア確認対象思考メモ情報
       topMemoryTrendList: [],
+      visionImage: DEFAULT_ACCOUNT_IMAGE,
 
       page: 1,  // ページ識別子
       // ページ識別子定数定義
@@ -101,6 +102,9 @@ function Init() {
       // コミュニティ機能関連
       isInvitationable: false,
 
+      // シェア通知フラグ
+      isShareNotify: false,
+
     },
     // インスタンス作成時に呼び出される
     created: async function() {
@@ -157,6 +161,9 @@ function Init() {
 
       // リスト種別初期値
       this.InitializeListType();
+
+      // シェア通知判定用のイベントを定義
+      this.EventShareNotify();
       
     },
     updated: function() {
@@ -201,7 +208,7 @@ function Init() {
           analysisAiResult = await this.memoryAi.AnalysisAi(this.memoryContent);
         }
         
-        // ロードアイコンを表示
+        // ロードアイコンを非表示
         this.isLoading = false;
 
         // 思考メモ入力初期化
@@ -526,6 +533,9 @@ function Init() {
             //$.post('./Api/LINE/LineNotify.php', {'accessMessage': 'シェアリストにアクセスがありました。'});
           });
         }
+
+        // シェア通知を解除する
+        this.ClearShareNotify();
       },
       // アドレスバーを除いたウィンドウ高さを取得する
       SetInnerWindowHeight: function() {
@@ -581,6 +591,9 @@ function Init() {
               $.post('./Api/LINE/LineNotify.php', {'notifyMessage': '思考メモがシェアされました。'});
             });
           }
+
+          // 全ユーザーへシェア通知を行う
+          this.NotifyShareToAllUsers();
 
         }
 
@@ -1305,8 +1318,24 @@ function Init() {
           });
         });
       },
+      // ユーザー設定登録時の入力チェックを行う
+      IsProbremInputConfig: function() {
+        let isProbrem = false;
+        
+        if (this.selectCovidNotifyArea != 'noNotify' && this.lineNotifyToken.trim().length == 0) {
+          isProbrem = true;
+          this.ShowNotifyModal('ユーザー設定時の入力チェック', 'LINE通知用のトークンを入力してください。');
+        }
+
+        return isProbrem;
+      },
       // マイページを更新する
       UpdateMyPage: async function() {
+
+        // 入力チェック
+        if (await this.IsProbremInputConfig()) {
+          return;
+        }
 
         // マイページ更新結果
         let failedCount = 0;
@@ -1968,6 +1997,165 @@ function Init() {
         this.modalNotifyTitle = '';
         this.modalNotifyContent = '';
         $('#notify-modal').modal('hide');
+      },
+      // シェア通知判定を行う
+      EventShareNotify: function() {
+        let self = this;
+        firebase.database().ref('ShareNotify/' + this.signInUser.uid).on('value', function(shareNotifyInfo) {
+          self.isShareNotify = shareNotifyInfo.val();
+        });
+      },
+      // 全ユーザーへシェア通知を行う
+      NotifyShareToAllUsers: function() {
+        let self = this;
+        firebase.database().ref('LoginUserAccessInfo').once('value', function(allUsers) {
+          let allUsersVal = allUsers.val();
+          Object.keys(allUsersVal).forEach(function(shareNotifyUserId) {
+            if (self.signInUser.uid != shareNotifyUserId) {
+              firebase.database().ref('ShareNotify/' + shareNotifyUserId).set(true);
+            }
+          });
+        });
+      },
+      // シェア通知を解除する
+      ClearShareNotify: function() {
+        firebase.database().ref('ShareNotify/' + this.signInUser.uid).set(false);
+      },
+      // アイデア画像の読み込みを行うモーダル表示
+      ShowVisionReadImageWindow: function() {
+
+        // 画像読み取り画面表示ボタン押下ログ
+        this.OutlogDebug('画像読み取り画面表示ボタンが押下されました');
+
+        // アイデア画像の読み込みモーダルを表示する
+        $('#vision-read-image-modal').modal('show');
+      },
+      // ローカルフォルダからアイデアイメージを選択する
+      SelectVisionImage: function() {
+
+        let self = this;
+
+        $(function() {
+          $('#vision-image-select').click();
+          $('#vision-image-select').on('change', function() {
+            
+            if (this.files && this.files.length > 0) {
+              let selectFile = this.files[0];
+              
+              // 画像ファイルのみ処理を行う
+              if (selectFile.type.startsWith('image/')) {
+                
+                // ファイルの相対パスを読み込む
+                let fileReader = new FileReader();
+                fileReader.readAsDataURL(selectFile);
+                
+                // ファイルのサムネイルを画面へ表示する
+                fileReader.onload = function() {
+                  self.visionImage = fileReader.result;
+                  $('#vision-image').css('opacity', '1');
+                };
+              
+              }
+            }
+          });
+        });
+      },
+      // 画像からテキストを読み取り、アイデア入力欄へ挿入する
+      InputVisionImageText: function() {
+        let self = this;
+        $(async function() {
+          // ロードアイコンを表示
+          self.isLoading = true;
+          
+          // 画像からアイデアを読み取る
+          let visionImageText = await self.ReadVisionImageText();
+          
+          if (visionImageText) {
+            // カーソル位置取得
+            let cursorPosition = $('#memory-input').get(0).selectionStart;
+
+            // 挿入場所の前後文字列取得
+            let insertBefore = self.memoryContent.slice(0, cursorPosition);
+            let insertAfter = self.memoryContent.slice(cursorPosition);
+            // 再セットする入力内容を作成
+            let resetContent = insertBefore + visionImageText + insertAfter;
+            
+            // 入力欄へ反映する
+            self.memoryContent = resetContent;
+
+            // 挿入内容反映タイミングの関係上、絶妙に遅らせて対応する
+            setTimeout(function() {
+              $('#memory-input').focus();
+              $('#memory-input').get(0).selectionStart = cursorPosition + visionImageText.length;
+              $('#memory-input').get(0).selectionEnd = cursorPosition + visionImageText.length;
+            }, 100);
+
+            // ロードアイコンを表示
+            self.isLoading = false;
+
+            $('#vision-read-image-modal').modal('hide');
+          
+          }
+
+          // ロードアイコンを表示
+          self.isLoading = false;
+
+        });
+      },
+      // 画像からテキストを読み取る
+      ReadVisionImageText: function() {
+        return new Promise(resolve => {
+          if (this.visionImage != DEFAULT_ACCOUNT_IMAGE) {
+
+            if ($('#vision-image-select').prop('files').length == 0) {
+              resolve('');
+              
+            } else {
+
+              // 選択中のアカウントイメージファイル
+              let visionImageFile = $('#vision-image-select').prop('files')[0];
+              let formData = new FormData();
+              formData.append('visionImage', visionImageFile);
+
+              let self = this;
+              $(function() {
+                $.ajax({
+                  url: './Api/VisionReadImage/VisionReadImage.php',
+                  type: 'post',
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  cache: false,
+                })
+                .done(function(visionImageText) {
+                  if (visionImageText && visionImageText.indexOf('Fatal error') != -1 && visionImageText.indexOf('Allowed memory size of ') != -1) {
+                    self.ShowNotifyModal('アイデアイメージ読み取り結果', '読み取り処理が端末の許容量を超えています。<br>お手数ですが、管理者までご連絡ください。');
+                    resolve('');
+
+                  } else if (visionImageText && visionImageText.indexOf('Fatal error') != -1) {
+                    self.ShowNotifyModal('アイデアイメージ読み取り結果', 'エラーによりアイデアを読み取ることができませんでした。<br>お手数ですが、管理者までご連絡ください。');
+                    resolve('');
+
+                  } else if (visionImageText) {
+                    resolve(visionImageText);
+                  
+                  } else {
+                    resolve('');
+                  
+                  }
+                })
+                .fail(function() {
+                  resolve('');
+                });
+              });
+
+            }
+
+          } else {
+            resolve('');
+
+          }
+        });
       },
     },
     filters: {

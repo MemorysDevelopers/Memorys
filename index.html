@@ -154,12 +154,13 @@
         </div>
         <textarea id="memory-input" class="form-control" v-model="memoryContent" :style="{height: memoryInputHeight + 'px'}" v-on:change="SaveInputMemory();" v-on:focus="AnimationHideHeaderMenu(); AnimationMemoryInputControl();" v-on:blur="AnimationMemoryInputControl();"></textarea>
         <div id="memory-input-control" class="icon-color box-sizing-common" :style="{bottom: (memoryInputHeight * 0.2)  + 'px'}">
-          <span class="h1" v-on:click="InsertTaskSymbol();"><i class="fas fa-check-circle"></i></span>
+          <span class="h1" v-on:click="InsertTaskSymbol();"><i class="fas fa-check-circle"></i></span><br><br>
+          <span class="h1" v-on:click="ShowVisionReadImageWindow();"><i class="fas fa-image"></i></span>
           <span id="memory-input-control-toggle" class="box-sizing-common h4" v-on:click="AnimationMemoryInputControl();"><i class="fas fa-bars center-box"></i></span>
         </div>
         <div class="relative-box" :style="{height: (memoryInputHeight * 0.17)  + 'px'}">
           <button type="button" id="memory-link-list" class="btn btn-outline-success" v-on:click="MoveMemoryList();"><i class="fas fa-th-list fa-fw"></i>&nbsp;一覧</button>
-          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
+          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();" :class="(isShareNotify == true) ? 'share-notify-animation' : ''"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
           <button type="button" id="memory-button" class="btn btn-outline-success" v-on:click="ConfirmMemorys();"><i class="fas fa-brain fa-fw"></i>&nbsp;記憶</button>
         </div>
       </template>
@@ -295,7 +296,7 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <input type="text" class="form-control" v-model="lineNotifyToken">
+              <input id="input-line-notify-token" type="text" class="form-control" placeholder="LINE通知用トークン" v-model="lineNotifyToken">
             </div>
             <p>
               こちらにはLINE Notify APIにて利用されるトークンを登録してください。<br>
@@ -327,7 +328,7 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <label for="area-select">コロナ感染者数通知対象の県</label>
+              <label for="area-select">コロナ感染者数通知対象の都道府県</label>
               <select class="form-control" id="area-select" v-model="selectCovidNotifyArea">
                 <option value="noNotify">通知しない</option>
                 <option value="aichi">愛知県</option>
@@ -380,7 +381,7 @@
               </select>
             </div>
             <p>
-              こちらから、LINEに向けてコロナ感染情報を通知したい対象の県を選択してください。
+              こちらから、LINEに向けてコロナ感染情報を通知したい対象の都道府県を選択してください。
             </p>
           </div>
         </div>
@@ -536,8 +537,14 @@
                     ・AIによるアイデアの分析<br>
                     &nbsp;&nbsp;投稿されたアイデアをAIが解析し、分析した結果をユーザーへ提供する機能になります。当アプリの中核となる機能になります。<br>
                     <br>
+                    ・画像からテキスト読み取り機能<br>
+                    &nbsp;&nbsp;アイデアメモを入力する際に、その場で撮影した写真や選択した画像からテキストを読み取る機能になります。入力する際に表示されるツールボックス内から利用することができます。<br>
+                    <br>
                     ・AI検索<br>
                     &nbsp;&nbsp;投稿されたアイデアから、入力された文章と似たような内容のものをAIが探しだす機能になります。<br>
+                    <br>
+                    ・コロナ感染情報通知サービス<br>
+                    &nbsp;&nbsp;マイページからLINE通知トークンと感染情報が欲しい対象エリアを選択して頂くことで、LINEへ毎日通知をお届けするサービスになります。LINE通知トークンの取得方法がわからない方はお気軽にお問い合わせください。<br>
                     <br>
                     ・タスク管理<br>
                     &nbsp;&nbsp;アイデアを入力している際に表示されるツールボックス内のチェックアイコンを押すことで、タスク管理用のアイデアとして保存を行うことができます。それにより、入力した内容でタスク管理を行えるようになります。<br>
@@ -565,8 +572,8 @@
                     ・できるだけお互いに認め合える場にしていきたい思いが強いので、是非ご協力よろしくお願い致します。<br>
                     <br>
                     ●アプリ情報<br>
-                    現在の最新アプリバージョン：2.3<br>
-                    リリース日：2021/10/05<br>
+                    現在の最新アプリバージョン：3.0<br>
+                    リリース日：2021/12/01<br>
                     <br>
                     ●お問い合わせ先<br>
                     開発用Twitter：@DevelopMemorys<br>
@@ -575,7 +582,7 @@
                     GMail：lowtone03@gmail.com<br>
                     <br>
                     ●記載日<br>
-                    2021/11/03
+                    2021/12/01
                   </p>
                 </div>
               </div>
@@ -727,6 +734,41 @@
               <button type="button" class="btn btn-success" v-on:click="ArchiveTask(confirmArchive);">アーカイブする</button>
               <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 画像による入力を実現するモーダル -->
+      <div class="modal fade" id="vision-read-image-modal" tabindex="-1" role="dialog" aria-labelledby="vision-read-image-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <!-- ローディングウィンドウ -->
+            <div id="vision-loading" class="center-box-absolute" v-if="isLoading">
+              <div class="center-box">
+                <div class="spinner-grow text-success" role="status">
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="container-fluid">
+              <div class="row">
+                <div id="vision-camera-box" class="col icon-color">
+                  <span id="vision-image-around"><img id="vision-image" :src="visionImage"></span>
+                  <span class="" v-on:click="SelectVisionImage();"><i class="fas fa-image"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="InputVisionImageText();">メモ適用</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+            <input type="file" id="vision-image-select">
           </div>
         </div>
       </div>
