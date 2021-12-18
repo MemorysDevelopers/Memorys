@@ -3,6 +3,32 @@
 require '../../Config/ApiPath.php';
 require '../Functions/PostFunctions.php';
 
+const IMAGE_SIZE_FIXED = 2000;
+
+function OutLog($logText) {
+  // 出力ログファイル名
+  $nowDay = date('Ymd');
+  $outlogFileName = $nowDay . '.log';
+
+  // ログ出力内容
+  $content = date('Y/m/d H:i:s') . ' : ' . $logText . "\n";
+
+  // ログ出力
+  $f = fopen('./Log/' . $outlogFileName, 'a');
+  fwrite($f, $content);
+  fclose($f);
+}
+
+function GetAspectRatioSize($imageWidth, $imageHeight) {
+  // 縦横比を求める
+  $aspectRatio = IMAGE_SIZE_FIXED / (($imageWidth >= $imageHeight) ? $imageWidth : $imageHeight);
+
+  $resizeImageWidth = $imageWidth * $aspectRatio;
+  $resizeImageHeight = $imageHeight * $aspectRatio;
+
+  return ['imageWidth' => $resizeImageWidth, 'imageHeight' => $resizeImageHeight];
+}
+
 function ImageResize($resizeFile) {
   $fileType = mime_content_type($resizeFile);
   list($width, $hight) = getimagesize($resizeFile);
@@ -16,9 +42,15 @@ function ImageResize($resizeFile) {
 
   }
 
-  $image = imagecreatetruecolor(1500, 1500);
+  // 縦横比を維持した状態でサイズ調整を行う
+  $aspectRatioSize = GetAspectRatioSize($width, $hight);
+
+  $image = imagecreatetruecolor($aspectRatioSize['imageWidth'], $aspectRatioSize['imageHeight']);
   
-  imagecopyresampled($image, $baseImage, 0, 0, 0, 0, 1500, 1500, $width, $hight);
+  // ログ出力
+  OutLog('元横幅：' . $width . ' / 元縦幅：' . $hight . ' / 調整後の横幅：' . $aspectRatioSize['imageWidth'] . ' / 調整後の縦幅：' . $aspectRatioSize['imageHeight']);
+
+  imagecopyresampled($image, $baseImage, 0, 0, 0, 0, $aspectRatioSize['imageWidth'], $aspectRatioSize['imageHeight'], $width, $hight);
 
   $resizeFilePath = 'resize_' . $resizeFile;
   if ($fileType == 'image/jpeg') {
