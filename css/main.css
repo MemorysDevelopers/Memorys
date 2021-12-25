@@ -386,6 +386,22 @@ body {
   font-size: 2.0em;
 }
 
+#load-search-lens {
+  display: none;
+  left: 50%;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  -moz-transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+  -o-transform: translate(-50%,-50%);
+  -webkit-transform: translate(-50%,-50%);
+}
+#load-search-lens-around {
+  color: #28a745;
+  font-size: 2.0em;
+}
+
 .memory-list-row {
   border: 2px solid rgb(14, 168, 0);
   /* background-color: aquamarine; */

@@ -12,7 +12,7 @@
     <!-- ホーム画面に表示されるアプリ名 -->
     <meta name="apple-mobile-web-app-title" content="Memorys">
     <!-- ホーム画面に表示されるアプリアイコン -->
-    <link rel="apple-touch-icon" href="img/memoryslogo.jpg">
+    <link rel="apple-touch-icon" href="img/memoryslogo_skeleton.png">
 
     <link rel="shortcut icon" href="./img/favicon.ico">
 
@@ -49,10 +49,15 @@
         </div>
       </div>
 
+
+      <!-- ************************************** -->
+      <!--                 各画面                  -->
+      <!-- ************************************** -->
+
       <!-- ログイン画面 -->
       <template v-if="page === PAGES.PAGE_LOGIN">
         <div class="head-box box-sizing-common">
-          <img class="headimage" src="img/memoryslogo.jpg">考え方は人それぞれ
+          <img class="headimage" src="img/memoryslogo_skeleton.png">考え方は人それぞれ
         </div>
         <div id="pwa-explanation-box">
           <button type="button" class="btn btn-success" data-toggle="modal" data-target="#pwa-explanation-modal"><i class="fab fa-apple fa-fw"></i>&nbsp;このアプリをiPhoneに追加してみる</button>
@@ -131,6 +136,14 @@
           <div class="row crecive-row"></div>
           <div class="row">
             <div class="col-6">
+            </div>
+            <div class="col-6 text-right">
+              <button type="button" id="community-button" class="btn btn-outline-success" v-on:click="MoveCommunityPage();"><i class="fas fa-user-friends"></i>&nbsp;コミュニティ</button>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div class="col-6">
               <button type="button" id="move-inquiry-button" class="btn btn-outline-success" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
             </div>
             <div class="col-6 text-right">
@@ -148,7 +161,7 @@
           </div>
           <div class="row crecive-row"></div>
         </div>
-        <img id="backimage" src="img/memoryslogo.jpg">
+        <img id="backimage" src="img/memoryslogo_skeleton.png">
         <div id="access-account-box" class="box-sizing-common">
           <span class="login-account-image-around" v-for="loginAccountPath in loginAccountList"><img class="login-account-image" :src="loginAccountPath"></span>
         </div>
@@ -181,6 +194,7 @@
           <div>{{listTitle}}一覧</div>
           <div class="crecive-box" v-if="listType === LIST_TYPE.LIST_MEMORYS">
             <button type="button" id="ai-search-button" class="btn btn-outline-success" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
+            <button type="button" id="single-word-search-button" class="btn btn-outline-success" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
           </div>
           <div class="icon-color top-right-box-list h4">
             <span v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;
@@ -200,6 +214,7 @@
           <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
         </div>
         <span id="load-search-robot-around"><i id="load-search-robot" class="fas fa-robot"></i></span>
+        <span id="load-search-lens-around"><i id="load-search-lens" class="fas fa-search"></i></span>
       </template>
 
       <!-- シェア一覧画面 -->
@@ -423,14 +438,26 @@
         <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
       </template>
 
+      <!-- コミュニティ画面 -->
+      <template v-else-if="page === PAGES.PAGE_COMMUNITY">
+        <div class="alert page-list-head relative-box">
+          <div>アイデア・コミュニティ</div>
+        </div>
+        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+      </template>
 
+
+
+      <!-- ************************************** -->
+      <!--                 モーダル                -->
+      <!-- ************************************** -->
 
       <!-- AI解析した過去の思考メモを表示するモーダル -->
       <div class="modal fade" id="memorys-ai-modal" tabindex="-1" role="dialog" aria-labelledby="memorys-ai-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -508,7 +535,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -599,7 +626,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -620,7 +647,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -639,7 +666,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -663,7 +690,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -681,7 +708,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -699,7 +726,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -719,12 +746,37 @@
         </div>
       </div>
 
+      <!-- 単語検索キーワードを入力するモーダル -->
+      <div class="modal fade" id="single-word-search-modal" tabindex="-1" role="dialog" aria-labelledby="single-word-search-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" id="single-word-search-text" class="form-control" v-model="singleWordSearchText"></input>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="SearchSingleWoreFromMemoryList();">検索</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- アーカイブを確認するモーダル -->
       <div class="modal fade" id="confirm-archive-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-archive-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -751,7 +803,7 @@
               </div>
             </div>
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -778,7 +830,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>

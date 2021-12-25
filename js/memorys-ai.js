@@ -200,3 +200,23 @@ MemorysAi.prototype.SearchAi = async function(searchText) {
     });
   });
 }
+
+// 単語検索を行う
+MemorysAi.prototype.SearchSingleWord = async function(searchText) {
+  return new Promise(resolve => {
+
+    // 指定キーワードによる単語検索を行う
+    let memoryResult = [];
+    this.ReadMemorysResult.forEach(function(memoryInfo) {
+      if (memoryInfo.content && memoryInfo.content.indexOf(searchText) != -1) {
+        memoryResult.push({
+          memoryKey: memoryInfo.memoryKey,
+          content: memoryInfo.content,
+          registDate: memoryInfo.registDate,
+        });
+      }
+    });
+
+    resolve(memoryResult);
+  });
+}

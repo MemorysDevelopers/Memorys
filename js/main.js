@@ -42,6 +42,7 @@ function Init() {
         PAGE_INQUIRY: 4,
         PAGE_MY: 5,
         PAGE_MAINTE: 6,
+        PAGE_COMMUNITY: 7,
       },
       listTitle: '',  // リストタイトル
       listType: 0,  // リスト種別
@@ -75,8 +76,15 @@ function Init() {
       isCopyToClipboardSuccess: false,  // クリップボードへのコピーが成功したか否か
 
       // 検索系
+      loadSearchIcon: '',
       isSearchAiLoding: false,  // AI検索中の際に表示するロードアニメーション発動
       listAiSearchText: '',  // AI検索用検索キーワード
+      isSearchSingleWordLoding: false,  // 単語検索中の際に表示するロードアニメーション発動
+      singleWordSearchText: '',  // 単語検索用検索キーワード
+      SEARCH_TYPES: {
+        ROBOT: 'robot',
+        SINGLE_WORD: 'lens',
+      },
 
       // メンテ
       mainteUserId: '',
@@ -101,6 +109,8 @@ function Init() {
 
       // コミュニティ機能関連
       isInvitationable: false,
+      communityInfo: {},
+      invitationUserIdList: [],
 
       // シェア通知フラグ
       isShareNotify: false,
@@ -171,6 +181,156 @@ function Init() {
       this.EventTaskCheck();
     },
     methods: {
+      // トップ画面へ遷移
+      MoveTopPage: async function() {
+
+        // トップ画面へ遷移ログ
+        this.OutlogDebug(((await this.IsSignIn()) ? 'トップ' : 'ログイン') + '画面へ遷移されました');
+
+        if (await this.IsSignIn()) {
+
+          // トップ画面へ遷移
+          this.page = this.PAGES.PAGE_TOP;
+          this.AnimationHideHeaderMenu();
+
+        } else {
+
+          // ログイン画面へ遷移
+          this.page = this.PAGES.PAGE_LOGIN;
+
+        }
+      },
+      // 思考一覧ページへ遷移する
+      MoveMemoryList: async function() {
+
+        // 思考一覧ページへ遷移ログ
+        this.OutlogDebug('思考一覧ページへ遷移されました');
+        
+        // 思考メモリストを取得
+        this.memoryList = await this.GetMemoryList();
+        // splice()により、オブジェクトを反映する
+        this.memoryList.splice();
+
+        // タスクリストを取得
+        this.taskList = await this.GetTaskList();
+        this.taskList.splice();
+
+        // 初期化
+        this.isSearchAiLoding = false;
+        this.listAiSearchText = '';
+
+        this.page = this.PAGES.PAGE_LIST;
+
+        // 管理者へ思考メモリストにアクセスされた旨を通知
+        if (DEVELOP_MODE === false) {
+          $(function() {
+            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': '思考メモリストにアクセスがありました。'});
+          });
+        }
+      },
+      // シェア思考一覧ページへ遷移する
+      MoveMomoryShareList: async function() {
+
+        // シェア思考一覧ページへ遷移ログ
+        this.OutlogDebug('シェア思考一覧ページへ遷移されました');
+
+        this.page = this.PAGES.PAGE_SHARE_LIST;
+        this.GetMemoryShareList();
+
+        // 管理者へシェアリストにアクセスされた旨を通知
+        if (DEVELOP_MODE === false) {
+          $(function() {
+            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': 'シェアリストにアクセスがありました。'});
+          });
+        }
+
+        // シェア通知を解除する
+        this.ClearShareNotify();
+      },
+      // お問い合わせ画面へ遷移
+      MoveInquiryPage: function() {
+
+        // お問い合わせ画面へ遷移ログ
+        this.OutlogDebug('お問い合わせ画面へ遷移されました');
+
+        this.inquiryAddress = '';
+        this.inquiryContent = '';
+        this.inquiryCheck = '';
+        this.inquiryResult = '';
+
+        this.page = this.PAGES.PAGE_INQUIRY;
+
+        // 元ページへ戻るボタンの文言を判定する
+        let self = this;
+        $(async function() {
+          $('#returnButtonInInquiry').text(await self.IsSignIn() ? 'トップ' : 'ログイン');
+        });
+      },
+      // マイページ画面へ遷移
+      MoveMyPage: async function() {
+
+        // マイページ画面へ遷移ログ
+        this.OutlogDebug('マイページ画面へ遷移されました');
+
+        // 保存していたアカウントイメージを適用する
+        await this.InitializeAccountImageToApp();
+
+        // マイページ画面へ遷移
+        this.page = this.PAGES.PAGE_MY;
+
+        // 保存していたユーザー設定を適用する
+        await this.SettingUserConfigToMyPage(this.userConfig);
+
+        // トップトレンド情報を表示する
+        await this.GetTopTrendList();
+
+        // デフォルトイメージか保存したアカウントイメージか判定する
+        if (this.accountImage != DEFAULT_ACCOUNT_IMAGE) {
+          $(function() {
+            $('#account-image').css('opacity', '1');
+          });
+        }
+      },
+      // メンテナンスページへ遷移する
+      MoveMainte: async function() {
+
+        // メンテナンスページへ遷移ログ
+        this.OutlogDebug('メンテナンスページへ遷移されました');
+
+        this.page = this.PAGES.PAGE_MAINTE;
+
+        if (this.IsAdminLogin() == false) {
+          this.UpdateApp();
+        }
+      },
+      // コミュニティページへ遷移する
+      MoveCommunityPage: async function() {
+
+        // コミュニティページへ遷移ログ
+        this.OutlogDebug('コミュニティページへ遷移されました');
+        
+        // コミュニティリストを取得
+        // this.communityInfo
+
+        // 
+        this.invitationUserIdList = await this.GetInvitationUserIdList();
+
+        this.invitationUserIdList.forEach(function(invitation) {
+          alert(invitation);
+        });
+        // // splice()により、オブジェクトを反映する
+        // this.memoryList.splice();
+
+        // // タスクリストを取得
+        // this.taskList = await this.GetTaskList();
+        // this.taskList.splice();
+
+        // // 初期化
+        // this.isSearchAiLoding = false;
+        // this.listAiSearchText = '';
+
+        this.page = this.PAGES.PAGE_COMMUNITY;
+      },
       // 思考登録時の一連の処理
       RegistMemory: async function() {
 
@@ -391,7 +551,7 @@ function Init() {
             this.memoryList.splice();
   
             // ロボットによるロードアニメーションを開始する
-            this.StartLoadingSearchRobot();
+            this.StartLoadingSearch(this.SEARCH_TYPES.ROBOT);
 
             // AIによる類似した思考メモの検索
             let searchAiResult = await this.memoryAi.SearchAi(this.listAiSearchText);
@@ -405,7 +565,7 @@ function Init() {
             }
 
             // ロボットによるロードアニメーションを終了する
-            this.StopMoveLoadingSearchRobot();
+            this.StopMoveLoadingSearch(this.SEARCH_TYPES.ROBOT);
 
             // 検索キーワードを初期化する
             this.listAiSearchText = '';
@@ -415,72 +575,105 @@ function Init() {
           }
         }
       },
-      // 検索中にロボットが動くアニメーションを実装
-      StartLoadingSearchRobot: function() {
+      // 単語検索キーワード入力を行う
+      ShowInputSingleWordSearch: function() {
 
-        this.isSearchAiLoding = true;
+        // 単語検索ボタン押下ログ
+        this.OutlogDebug('単語検索ボタンが押下されました');
+
+        // 単語検索キーワード入力用モーダルを表示する
+        $('#single-word-search-modal').modal('show');
+      },
+      // 思考一覧ページから単語検索を行う
+      SearchSingleWoreFromMemoryList: async function() {
+        if (this.isSearchSingleWordLoding == false && this.singleWordSearchText.trim().length > 0) {
+          try {
+
+            // 単語検索処理実行ログ
+            this.OutlogDebug('単語検索処理が実行されました');
+
+            // 単語検索キーワード入力用モーダルを非表示にする
+            $('#single-word-search-modal').modal('hide');
+
+            // 検索結果を初期化
+            this.memoryList = [];
+            this.memoryList.splice();
+  
+            // レンズによるロードアニメーションを開始する
+            this.StartLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+            // AIによる類似した思考メモの検索
+            let searchSingleWordResult = await this.memoryAi.SearchSingleWord(this.singleWordSearchText);
+            this.memoryList = searchSingleWordResult;
+            this.memoryList.splice();
+
+            // レンズによるロードアニメーションを終了する
+            this.StopMoveLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+            // 検索キーワードを初期化する
+            this.singleWordSearchText = '';
+  
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      },
+      // 検索中にロボットが動くアニメーションを実装
+      StartLoadingSearch: function(searchType) {
+
+        this.loadSearchIcon = searchType;
+
+        if (searchType == this.SEARCH_TYPES.ROBOT) {
+          this.isSearchAiLoding = true;
+        
+        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
+          this.isSearchSingleWordLoding = true;
+        
+        }
 
         let self = this;
         $(function() {
-          $('#load-search-robot').css('display', 'inline');
-          self.MoveRightOutLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).css('display', 'inline');
+          self.MoveRightOutLoadingSearch(searchType);
         });
       },
       // ロボットが右に去っていくアニメーション
-      MoveRightOutLoadingSearchRobot: function() {
-        if (this.isSearchAiLoding) {
+      MoveRightOutLoadingSearch: function(searchType) {
+        if ((searchType == this.SEARCH_TYPES.ROBOT && this.isSearchAiLoding) || (searchType == this.SEARCH_TYPES.SINGLE_WORD && this.isSearchSingleWordLoding)) {
           let self = this;
-          $('#load-search-robot').animate({left: '110%'}, 1500, function() {
-            $('#load-search-robot').css('left', '-50%');
-            self.MoveLeftInLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).animate({left: '110%'}, 1500, function() {
+            $('#load-search-' + self.loadSearchIcon).css('left', '-50%');
+            self.MoveLeftInLoadingSearch(searchType);
           });
         }
       },
       // ロボットが左から現れるアニメーション
-      MoveLeftInLoadingSearchRobot: function() {
-        if (this.isSearchAiLoding) {
+      MoveLeftInLoadingSearch: function(searchType) {
+        if ((searchType == this.SEARCH_TYPES.ROBOT && this.isSearchAiLoding) || (searchType == this.SEARCH_TYPES.SINGLE_WORD && this.isSearchSingleWordLoding)) {
           let self = this;
-          $('#load-search-robot').animate({left: '50%'}, 1500, function() {
-            $('#load-search-robot-around').animate({fontSize: '5.0em'}, 1000, function() {
-              $('#load-search-robot-around').animate({fontSize: '2.0em'}, 1000, function() {
-                self.MoveRightOutLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).animate({left: '50%'}, 1500, function() {
+            $('#load-search-' + self.loadSearchIcon + '-around').animate({fontSize: '5.0em'}, 1000, function() {
+              $('#load-search-' + self.loadSearchIcon + '-around').animate({fontSize: '2.0em'}, 1000, function() {
+                self.MoveRightOutLoadingSearch(searchType);
               });
             });
           });
         }
       },
       // ロボットアニメーションを止める
-      StopMoveLoadingSearchRobot: function() {
-        $('#load-search-robot').css('display', 'none');
-        this.isSearchAiLoding = false;
-      },
-      // 思考一覧ページへ遷移する
-      MoveMemoryList: async function() {
+      StopMoveLoadingSearch: function(searchType) {
 
-        // 思考一覧ページへ遷移ログ
-        this.OutlogDebug('思考一覧ページへ遷移されました');
+        $('#load-search-' + this.loadSearchIcon).css('display', 'none');
+
+        if (searchType == this.SEARCH_TYPES.ROBOT) {
+          this.isSearchAiLoding = false;
         
-        // 思考メモリストを取得
-        this.memoryList = await this.GetMemoryList();
-        // splice()により、オブジェクトを反映する
-        this.memoryList.splice();
-
-        // タスクリストを取得
-        this.taskList = await this.GetTaskList();
-        this.taskList.splice();
-
-        // 初期化
-        this.isSearchAiLoding = false;
-        this.listAiSearchText = '';
-
-        this.page = this.PAGES.PAGE_LIST;
-
-        // 管理者へ思考メモリストにアクセスされた旨を通知
-        if (DEVELOP_MODE === false) {
-          $(function() {
-            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': '思考メモリストにアクセスがありました。'});
-          });
+        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
+          this.isSearchSingleWordLoding = false;
+        
         }
+
+        this.loadSearchIcon = '';
       },
       // シェア思考リストを取得
       GetMemoryShareList: async function() {
@@ -517,25 +710,6 @@ function Init() {
           this.SetShareAccountImagePath(this.memoryShareList);
           
         }.bind(this));
-      },
-      // シェア思考一覧ページへ遷移する
-      MoveMomoryShareList: async function() {
-
-        // シェア思考一覧ページへ遷移ログ
-        this.OutlogDebug('シェア思考一覧ページへ遷移されました');
-
-        this.page = this.PAGES.PAGE_SHARE_LIST;
-        this.GetMemoryShareList();
-
-        // 管理者へシェアリストにアクセスされた旨を通知
-        if (DEVELOP_MODE === false) {
-          $(function() {
-            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': 'シェアリストにアクセスがありました。'});
-          });
-        }
-
-        // シェア通知を解除する
-        this.ClearShareNotify();
       },
       // アドレスバーを除いたウィンドウ高さを取得する
       SetInnerWindowHeight: function() {
@@ -1071,25 +1245,6 @@ function Init() {
 
         $('#memory-input-control').animate({right: '-20%'}, 200, 'swing');
       },
-      // トップ画面へ遷移
-      MoveTopPage: async function() {
-
-        // トップ画面へ遷移ログ
-        this.OutlogDebug(((await this.IsSignIn()) ? 'トップ' : 'ログイン') + '画面へ遷移されました');
-
-        if (await this.IsSignIn()) {
-
-          // トップ画面へ遷移
-          this.page = this.PAGES.PAGE_TOP;
-          this.AnimationHideHeaderMenu();
-
-        } else {
-
-          // ログイン画面へ遷移
-          this.page = this.PAGES.PAGE_LOGIN;
-
-        }
-      },
       // スーパーリロード
       UpdateApp: function() {
 
@@ -1219,25 +1374,6 @@ function Init() {
           });
         });
       },
-      // お問い合わせ画面へ遷移
-      MoveInquiryPage: function() {
-
-        // お問い合わせ画面へ遷移ログ
-        this.OutlogDebug('お問い合わせ画面へ遷移されました');
-
-        this.inquiryAddress = '';
-        this.inquiryContent = '';
-        this.inquiryCheck = '';
-        this.inquiryResult = '';
-
-        this.page = this.PAGES.PAGE_INQUIRY;
-
-        // 元ページへ戻るボタンの文言を判定する
-        let self = this;
-        $(async function() {
-          $('#returnButtonInInquiry').text(await self.IsSignIn() ? 'トップ' : 'ログイン');
-        });
-      },
       // PWA適用説明用のカルーセル動作を開始する
       StartPwaExplanationCarousel: function() {
 
@@ -1262,31 +1398,6 @@ function Init() {
         let copyText = window.location.href;
         navigator.clipboard.writeText(copyText);
         this.isCopyToClipboardSuccess = true;
-      },
-      // マイページ画面へ遷移
-      MoveMyPage: async function() {
-
-        // マイページ画面へ遷移ログ
-        this.OutlogDebug('マイページ画面へ遷移されました');
-
-        // 保存していたアカウントイメージを適用する
-        await this.InitializeAccountImageToApp();
-
-        // マイページ画面へ遷移
-        this.page = this.PAGES.PAGE_MY;
-
-        // 保存していたユーザー設定を適用する
-        await this.SettingUserConfigToMyPage(this.userConfig);
-
-        // トップトレンド情報を表示する
-        await this.GetTopTrendList();
-
-        // デフォルトイメージか保存したアカウントイメージか判定する
-        if (this.accountImage != DEFAULT_ACCOUNT_IMAGE) {
-          $(function() {
-            $('#account-image').css('opacity', '1');
-          });
-        }
       },
       // ローカルフォルダからアカウント用のイメージを選択する
       SelectAccountImage: function() {
@@ -1787,18 +1898,6 @@ function Init() {
           }
         });
       },
-      // メンテナンスページへ遷移する
-      MoveMainte: async function() {
-
-        // メンテナンスページへ遷移ログ
-        this.OutlogDebug('メンテナンスページへ遷移されました');
-
-        this.page = this.PAGES.PAGE_MAINTE;
-
-        if (this.IsAdminLogin() == false) {
-          this.UpdateApp();
-        }
-      },
       // 入力欄へのタスク挿入
       InsertTaskSymbol: function() {
         let self = this;
@@ -1956,7 +2055,7 @@ function Init() {
         self.topMemoryTrendList = [];
         return new Promise(resolve => {
           $(function() {
-            $.post('./Api/DB/select_top_idea_trend.php', {userId:self.signInUser.uid, selectCount:10}, function(res) {
+            $.post('./Api/DB/select_top_idea_trend.php', {userId:[self.signInUser.uid], selectCount:9}, function(res) {
               if (res != '0') {
                 let topTrendList = JSON.parse(decodeURIComponent(res));
                 Object.keys(topTrendList).forEach(function(topTrend) {
@@ -2155,6 +2254,20 @@ function Init() {
             resolve('');
 
           }
+        });
+      },
+      // コミュニティ情報を取得する
+      GetInvitationUserIdList: function() {
+        let self = this;
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/community_invitation.php', {hostUserId:[self.signInUser.uid], invitationUserId:['wv4GttUvpwV5q5i65k5emXDfv282', 'xiNJyqE5OtcAposIHDM4earGV7w1','yC2gTuVeSpgDlkKyfGiWKgv70yI2']}, function(res) {
+              if (res != '0') {
+                resolve(JSON.parse(res));
+              }
+              resolve([]);
+            });
+          });
         });
       },
     },
