@@ -9,7 +9,7 @@ const FIREBASE_CONFIG = {
 	measurementId: 'G-FV0B7MQHBB'
 };
 
-const DEFAULT_ACCOUNT_IMAGE = './img/memoryslogo.jpg';
+const DEFAULT_ACCOUNT_IMAGE = './img/memoryslogo_skeleton.png';
 
 // Vue.config.errorHandler = function(err, vm, info) {
 // 	let logContent = String(err).replace(/(\r\n|\r|\n)/gi, ' ');

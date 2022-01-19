@@ -42,6 +42,8 @@ function Init() {
         PAGE_INQUIRY: 4,
         PAGE_MY: 5,
         PAGE_MAINTE: 6,
+        PAGE_COMMUNITY: 7,
+        PAGE_COMMUNITY_TALK_ROOM: 8,
       },
       listTitle: '',  // リストタイトル
       listType: 0,  // リスト種別
@@ -57,6 +59,7 @@ function Init() {
       },
 
       memoryInputHeight: 0,
+      memoryWidth: 0,
 
       // 思考メモAI
       memoryAi: null,
@@ -75,8 +78,15 @@ function Init() {
       isCopyToClipboardSuccess: false,  // クリップボードへのコピーが成功したか否か
 
       // 検索系
+      loadSearchIcon: '',
       isSearchAiLoding: false,  // AI検索中の際に表示するロードアニメーション発動
       listAiSearchText: '',  // AI検索用検索キーワード
+      isSearchSingleWordLoding: false,  // 単語検索中の際に表示するロードアニメーション発動
+      singleWordSearchText: '',  // 単語検索用検索キーワード
+      SEARCH_TYPES: {
+        ROBOT: 'robot',
+        SINGLE_WORD: 'lens',
+      },
 
       // メンテ
       mainteUserId: '',
@@ -100,10 +110,37 @@ function Init() {
       modalNotifyContent: '',
 
       // コミュニティ機能関連
+      communityTalkInput: '',
+      communityTalkList: [],
       isInvitationable: false,
+      invitationCommunityId: '',
+      invitationCommunityList: [],
+      joiningCommunityId: '',
+      joiningMemberName: '',
+      communityInfo: {},
+      invitationUserIdList: [],
+      communityImage: DEFAULT_ACCOUNT_IMAGE,
+      communityImageName: '',
+      communityName: '',
+      communityDescription: '',
+      communityMemberName: '',
+      isCreateCommunityCofirm: false,
+      errorCommunityImage: '',
+      errorCommunityName: '',
+      errorCommunityDescription: '',
+      errorCommunityMemberName: '',
+      errorInvitationCommunityMemberName: '',
+      communityTalkInputHeight: 0,
+      communityTalkScrollTop: 0,
+      communityTalkShowFlg: false,
 
       // シェア通知フラグ
       isShareNotify: false,
+
+      // ユーザー通知関連
+      notifyToUser: '',
+      notifyToUserModalContent: '',
+      USER_NOTIFY_DELIMITER: '|',
 
     },
     // インスタンス作成時に呼び出される
@@ -117,8 +154,10 @@ function Init() {
       // ログイン状態の保持を「セッション」単位とする
       firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-      // 内側ウィンドウ高さを設定する
+      // 内側ウィンドウ高さ・幅を設定する
       this.SetInnerWindowHeight();
+      this.SetInnerWindowWidth();
+      this.SetCommunityTalkInputHeight();
 
       // 内側ウィンドウサイズが変更される際に高さを再設定する
       $(window).on('resize', this.SetInnerWindowHeight);
@@ -164,13 +203,179 @@ function Init() {
 
       // シェア通知判定用のイベントを定義
       this.EventShareNotify();
+
+      // ユーザー通知判定用のイベントを定義
+      this.EventNotifyToUser();
+
+      // コミュニティ招待感知イベントを定義
+      this.EventNotifyCommunityInvitation();
+
+      // コミュニティ情報の初期化を行う
+      await this.InitializeCommunityInfo();
+
+      // コミュニティトーク内容を表示するイベントを定義
+      this.EventShowCommunityTalk();
+
+      // コミュニティトークの位置保持のためのイベントを定義
+      this.EventSaveCommunityTalkScrollTop();
       
+    },
+    computed: {
+      sortCommunityTalkList() {
+        return this.communityTalkList.slice().sort(function(communityTalkInfoBefore,communityTalkInfoAfter) {
+          if( parseInt(communityTalkInfoBefore.communityTalkKey) < parseInt(communityTalkInfoAfter.communityTalkKey) ) return -1;
+          if( parseInt(communityTalkInfoBefore.communityTalkKey) > parseInt(communityTalkInfoAfter.communityTalkKey) ) return 1;
+          return 0;
+        });
+      },
     },
     updated: function() {
       // タスクチェックイベント発行
       this.EventTaskCheck();
     },
     methods: {
+      // トップ画面へ遷移
+      MoveTopPage: async function() {
+
+        // トップ画面へ遷移ログ
+        this.OutlogDebug(((await this.IsSignIn()) ? 'トップ' : 'ログイン') + '画面へ遷移されました');
+
+        if (await this.IsSignIn()) {
+
+          // トップ画面へ遷移
+          this.page = this.PAGES.PAGE_TOP;
+          this.AnimationHideHeaderMenu();
+
+        } else {
+
+          // ログイン画面へ遷移
+          this.page = this.PAGES.PAGE_LOGIN;
+
+        }
+      },
+      // 思考一覧ページへ遷移する
+      MoveMemoryList: async function() {
+
+        // 思考一覧ページへ遷移ログ
+        this.OutlogDebug('思考一覧ページへ遷移されました');
+        
+        // 思考メモリストを取得
+        this.memoryList = await this.GetMemoryList();
+        // splice()により、オブジェクトを反映する
+        this.memoryList.splice();
+
+        // タスクリストを取得
+        this.taskList = await this.GetTaskList();
+        this.taskList.splice();
+
+        // 初期化
+        this.isSearchAiLoding = false;
+        this.listAiSearchText = '';
+
+        this.page = this.PAGES.PAGE_LIST;
+
+        // 管理者へ思考メモリストにアクセスされた旨を通知
+        if (DEVELOP_MODE === false) {
+          $(function() {
+            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': '思考メモリストにアクセスがありました。'});
+          });
+        }
+      },
+      // シェア思考一覧ページへ遷移する
+      MoveMomoryShareList: async function() {
+
+        // シェア思考一覧ページへ遷移ログ
+        this.OutlogDebug('シェア思考一覧ページへ遷移されました');
+
+        this.page = this.PAGES.PAGE_SHARE_LIST;
+        this.GetMemoryShareList();
+
+        // 管理者へシェアリストにアクセスされた旨を通知
+        if (DEVELOP_MODE === false) {
+          $(function() {
+            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': 'シェアリストにアクセスがありました。'});
+          });
+        }
+
+        // シェア通知を解除する
+        this.ClearShareNotify();
+      },
+      // お問い合わせ画面へ遷移
+      MoveInquiryPage: function() {
+
+        // お問い合わせ画面へ遷移ログ
+        this.OutlogDebug('お問い合わせ画面へ遷移されました');
+
+        this.inquiryAddress = '';
+        this.inquiryContent = '';
+        this.inquiryCheck = '';
+        this.inquiryResult = '';
+
+        this.page = this.PAGES.PAGE_INQUIRY;
+
+        // 元ページへ戻るボタンの文言を判定する
+        let self = this;
+        $(async function() {
+          $('#returnButtonInInquiry').text(await self.IsSignIn() ? 'トップ' : 'ログイン');
+        });
+      },
+      // マイページ画面へ遷移
+      MoveMyPage: async function() {
+
+        // マイページ画面へ遷移ログ
+        this.OutlogDebug('マイページ画面へ遷移されました');
+
+        // 保存していたアカウントイメージを適用する
+        await this.InitializeAccountImageToApp();
+
+        // マイページ画面へ遷移
+        this.page = this.PAGES.PAGE_MY;
+
+        // 保存していたユーザー設定を適用する
+        await this.SettingUserConfigToMyPage(this.userConfig);
+
+        // トップトレンド情報を表示する
+        await this.GetTopTrendList();
+
+        // デフォルトイメージか保存したアカウントイメージか判定する
+        if (this.accountImage != DEFAULT_ACCOUNT_IMAGE) {
+          $(function() {
+            $('#account-image').css('opacity', '1');
+          });
+        }
+      },
+      // メンテナンスページへ遷移する
+      MoveMainte: async function() {
+
+        // メンテナンスページへ遷移ログ
+        this.OutlogDebug('メンテナンスページへ遷移されました');
+
+        this.page = this.PAGES.PAGE_MAINTE;
+
+        if (this.IsAdminLogin() == false) {
+          this.UpdateApp();
+        }
+      },
+      // コミュニティページへ遷移する
+      MoveCommunityPage: async function() {
+
+        // コミュニティページへ遷移ログ
+        this.OutlogDebug('コミュニティページへ遷移されました');
+
+        this.page = this.PAGES.PAGE_COMMUNITY;
+      },
+      // コミュニティトークルームページへ遷移する
+      MoveCommunityTalkPage: async function() {
+
+        // コミュニティページへ遷移ログ
+        this.OutlogDebug('コミュニティページへ遷移されました');
+
+        // コミュニティトーク内容を表示する
+        await this.ShowCommunityTalk();
+        // this.DownMaxScroll();
+
+        this.page = this.PAGES.PAGE_COMMUNITY_TALK_ROOM;
+      },
       // 思考登録時の一連の処理
       RegistMemory: async function() {
 
@@ -391,7 +596,7 @@ function Init() {
             this.memoryList.splice();
   
             // ロボットによるロードアニメーションを開始する
-            this.StartLoadingSearchRobot();
+            this.StartLoadingSearch(this.SEARCH_TYPES.ROBOT);
 
             // AIによる類似した思考メモの検索
             let searchAiResult = await this.memoryAi.SearchAi(this.listAiSearchText);
@@ -405,7 +610,7 @@ function Init() {
             }
 
             // ロボットによるロードアニメーションを終了する
-            this.StopMoveLoadingSearchRobot();
+            this.StopMoveLoadingSearch(this.SEARCH_TYPES.ROBOT);
 
             // 検索キーワードを初期化する
             this.listAiSearchText = '';
@@ -415,72 +620,105 @@ function Init() {
           }
         }
       },
-      // 検索中にロボットが動くアニメーションを実装
-      StartLoadingSearchRobot: function() {
+      // 単語検索キーワード入力を行う
+      ShowInputSingleWordSearch: function() {
 
-        this.isSearchAiLoding = true;
+        // 単語検索ボタン押下ログ
+        this.OutlogDebug('単語検索ボタンが押下されました');
+
+        // 単語検索キーワード入力用モーダルを表示する
+        $('#single-word-search-modal').modal('show');
+      },
+      // 思考一覧ページから単語検索を行う
+      SearchSingleWoreFromMemoryList: async function() {
+        if (this.isSearchSingleWordLoding == false && this.singleWordSearchText.trim().length > 0) {
+          try {
+
+            // 単語検索処理実行ログ
+            this.OutlogDebug('単語検索処理が実行されました');
+
+            // 単語検索キーワード入力用モーダルを非表示にする
+            $('#single-word-search-modal').modal('hide');
+
+            // 検索結果を初期化
+            this.memoryList = [];
+            this.memoryList.splice();
+  
+            // レンズによるロードアニメーションを開始する
+            this.StartLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+            // AIによる類似した思考メモの検索
+            let searchSingleWordResult = await this.memoryAi.SearchSingleWord(this.singleWordSearchText);
+            this.memoryList = searchSingleWordResult;
+            this.memoryList.splice();
+
+            // レンズによるロードアニメーションを終了する
+            this.StopMoveLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+            // 検索キーワードを初期化する
+            this.singleWordSearchText = '';
+  
+          } catch {
+
+          }
+        }
+      },
+      // 検索中にロボットが動くアニメーションを実装
+      StartLoadingSearch: function(searchType) {
+
+        this.loadSearchIcon = searchType;
+
+        if (searchType == this.SEARCH_TYPES.ROBOT) {
+          this.isSearchAiLoding = true;
+        
+        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
+          this.isSearchSingleWordLoding = true;
+        
+        }
 
         let self = this;
         $(function() {
-          $('#load-search-robot').css('display', 'inline');
-          self.MoveRightOutLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).css('display', 'inline');
+          self.MoveRightOutLoadingSearch(searchType);
         });
       },
       // ロボットが右に去っていくアニメーション
-      MoveRightOutLoadingSearchRobot: function() {
-        if (this.isSearchAiLoding) {
+      MoveRightOutLoadingSearch: function(searchType) {
+        if ((searchType == this.SEARCH_TYPES.ROBOT && this.isSearchAiLoding) || (searchType == this.SEARCH_TYPES.SINGLE_WORD && this.isSearchSingleWordLoding)) {
           let self = this;
-          $('#load-search-robot').animate({left: '110%'}, 1500, function() {
-            $('#load-search-robot').css('left', '-50%');
-            self.MoveLeftInLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).animate({left: '110%'}, 1500, function() {
+            $('#load-search-' + self.loadSearchIcon).css('left', '-50%');
+            self.MoveLeftInLoadingSearch(searchType);
           });
         }
       },
       // ロボットが左から現れるアニメーション
-      MoveLeftInLoadingSearchRobot: function() {
-        if (this.isSearchAiLoding) {
+      MoveLeftInLoadingSearch: function(searchType) {
+        if ((searchType == this.SEARCH_TYPES.ROBOT && this.isSearchAiLoding) || (searchType == this.SEARCH_TYPES.SINGLE_WORD && this.isSearchSingleWordLoding)) {
           let self = this;
-          $('#load-search-robot').animate({left: '50%'}, 1500, function() {
-            $('#load-search-robot-around').animate({fontSize: '5.0em'}, 1000, function() {
-              $('#load-search-robot-around').animate({fontSize: '2.0em'}, 1000, function() {
-                self.MoveRightOutLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).animate({left: '50%'}, 1500, function() {
+            $('#load-search-' + self.loadSearchIcon + '-around').animate({fontSize: '5.0em'}, 1000, function() {
+              $('#load-search-' + self.loadSearchIcon + '-around').animate({fontSize: '2.0em'}, 1000, function() {
+                self.MoveRightOutLoadingSearch(searchType);
               });
             });
           });
         }
       },
       // ロボットアニメーションを止める
-      StopMoveLoadingSearchRobot: function() {
-        $('#load-search-robot').css('display', 'none');
-        this.isSearchAiLoding = false;
-      },
-      // 思考一覧ページへ遷移する
-      MoveMemoryList: async function() {
+      StopMoveLoadingSearch: function(searchType) {
 
-        // 思考一覧ページへ遷移ログ
-        this.OutlogDebug('思考一覧ページへ遷移されました');
+        $('#load-search-' + this.loadSearchIcon).css('display', 'none');
+
+        if (searchType == this.SEARCH_TYPES.ROBOT) {
+          this.isSearchAiLoding = false;
         
-        // 思考メモリストを取得
-        this.memoryList = await this.GetMemoryList();
-        // splice()により、オブジェクトを反映する
-        this.memoryList.splice();
-
-        // タスクリストを取得
-        this.taskList = await this.GetTaskList();
-        this.taskList.splice();
-
-        // 初期化
-        this.isSearchAiLoding = false;
-        this.listAiSearchText = '';
-
-        this.page = this.PAGES.PAGE_LIST;
-
-        // 管理者へ思考メモリストにアクセスされた旨を通知
-        if (DEVELOP_MODE === false) {
-          $(function() {
-            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': '思考メモリストにアクセスがありました。'});
-          });
+        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
+          this.isSearchSingleWordLoding = false;
+        
         }
+
+        this.loadSearchIcon = '';
       },
       // シェア思考リストを取得
       GetMemoryShareList: async function() {
@@ -518,25 +756,6 @@ function Init() {
           
         }.bind(this));
       },
-      // シェア思考一覧ページへ遷移する
-      MoveMomoryShareList: async function() {
-
-        // シェア思考一覧ページへ遷移ログ
-        this.OutlogDebug('シェア思考一覧ページへ遷移されました');
-
-        this.page = this.PAGES.PAGE_SHARE_LIST;
-        this.GetMemoryShareList();
-
-        // 管理者へシェアリストにアクセスされた旨を通知
-        if (DEVELOP_MODE === false) {
-          $(function() {
-            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': 'シェアリストにアクセスがありました。'});
-          });
-        }
-
-        // シェア通知を解除する
-        this.ClearShareNotify();
-      },
       // アドレスバーを除いたウィンドウ高さを取得する
       SetInnerWindowHeight: function() {
 
@@ -552,6 +771,22 @@ function Init() {
 
         // 内側ウィンドウ高さを設定する
         this.memoryInputHeight = String(inputHeight * 0.77);
+      },
+      // ウィンドウ幅を取得する
+      SetInnerWindowWidth: function() {
+
+        // ウィンドウ幅設定ログ
+        this.OutlogDebug('ウィンドウの幅が設定されました');
+
+        let windowWidth = $(window).width();
+
+        // 内側ウィンドウ高さを設定する
+        this.memoryWidth = String(windowWidth - 30);
+      },
+      // コミュニティトーク用のボックス高さを設定する
+      SetCommunityTalkInputHeight: function() {
+        // ボックス高さを設定する
+        this.communityTalkInputHeight = String(parseInt(this.memoryInputHeight) * 0.45);
       },
       // シェアを行う
       ShareMemory: async function(memoryInfo) {
@@ -1071,25 +1306,6 @@ function Init() {
 
         $('#memory-input-control').animate({right: '-20%'}, 200, 'swing');
       },
-      // トップ画面へ遷移
-      MoveTopPage: async function() {
-
-        // トップ画面へ遷移ログ
-        this.OutlogDebug(((await this.IsSignIn()) ? 'トップ' : 'ログイン') + '画面へ遷移されました');
-
-        if (await this.IsSignIn()) {
-
-          // トップ画面へ遷移
-          this.page = this.PAGES.PAGE_TOP;
-          this.AnimationHideHeaderMenu();
-
-        } else {
-
-          // ログイン画面へ遷移
-          this.page = this.PAGES.PAGE_LOGIN;
-
-        }
-      },
       // スーパーリロード
       UpdateApp: function() {
 
@@ -1219,25 +1435,6 @@ function Init() {
           });
         });
       },
-      // お問い合わせ画面へ遷移
-      MoveInquiryPage: function() {
-
-        // お問い合わせ画面へ遷移ログ
-        this.OutlogDebug('お問い合わせ画面へ遷移されました');
-
-        this.inquiryAddress = '';
-        this.inquiryContent = '';
-        this.inquiryCheck = '';
-        this.inquiryResult = '';
-
-        this.page = this.PAGES.PAGE_INQUIRY;
-
-        // 元ページへ戻るボタンの文言を判定する
-        let self = this;
-        $(async function() {
-          $('#returnButtonInInquiry').text(await self.IsSignIn() ? 'トップ' : 'ログイン');
-        });
-      },
       // PWA適用説明用のカルーセル動作を開始する
       StartPwaExplanationCarousel: function() {
 
@@ -1262,31 +1459,6 @@ function Init() {
         let copyText = window.location.href;
         navigator.clipboard.writeText(copyText);
         this.isCopyToClipboardSuccess = true;
-      },
-      // マイページ画面へ遷移
-      MoveMyPage: async function() {
-
-        // マイページ画面へ遷移ログ
-        this.OutlogDebug('マイページ画面へ遷移されました');
-
-        // 保存していたアカウントイメージを適用する
-        await this.InitializeAccountImageToApp();
-
-        // マイページ画面へ遷移
-        this.page = this.PAGES.PAGE_MY;
-
-        // 保存していたユーザー設定を適用する
-        await this.SettingUserConfigToMyPage(this.userConfig);
-
-        // トップトレンド情報を表示する
-        await this.GetTopTrendList();
-
-        // デフォルトイメージか保存したアカウントイメージか判定する
-        if (this.accountImage != DEFAULT_ACCOUNT_IMAGE) {
-          $(function() {
-            $('#account-image').css('opacity', '1');
-          });
-        }
       },
       // ローカルフォルダからアカウント用のイメージを選択する
       SelectAccountImage: function() {
@@ -1787,18 +1959,6 @@ function Init() {
           }
         });
       },
-      // メンテナンスページへ遷移する
-      MoveMainte: async function() {
-
-        // メンテナンスページへ遷移ログ
-        this.OutlogDebug('メンテナンスページへ遷移されました');
-
-        this.page = this.PAGES.PAGE_MAINTE;
-
-        if (this.IsAdminLogin() == false) {
-          this.UpdateApp();
-        }
-      },
       // 入力欄へのタスク挿入
       InsertTaskSymbol: function() {
         let self = this;
@@ -1921,6 +2081,10 @@ function Init() {
       ReplaceNewLineReverse: function(text) {
         return text.replace(/<br>/ig, '\n');
       },
+      // 改行特殊文字 => 改行コード
+      ReplaceNewLineSpecial: function(text) {
+        return text.replace(/\|ｶｲｷﾞｮｳ\|/ig, '\n');
+      },
       // タスクアイコンを識別用文字列に変換する
       ReplaceTaskBoxReverse: function(text) {
         return text
@@ -1956,7 +2120,7 @@ function Init() {
         self.topMemoryTrendList = [];
         return new Promise(resolve => {
           $(function() {
-            $.post('./Api/DB/select_top_idea_trend.php', {userId:self.signInUser.uid, selectCount:10}, function(res) {
+            $.post('./Api/DB/select_top_idea_trend.php', {userId:[self.signInUser.uid], selectCount:9}, function(res) {
               if (res != '0') {
                 let topTrendList = JSON.parse(decodeURIComponent(res));
                 Object.keys(topTrendList).forEach(function(topTrend) {
@@ -2020,6 +2184,45 @@ function Init() {
       // シェア通知を解除する
       ClearShareNotify: function() {
         firebase.database().ref('ShareNotify/' + this.signInUser.uid).set(false);
+      },
+      // ユーザー通知を感知する
+      EventNotifyToUser: function() {
+        let self = this;
+        firebase.database().ref('NotifyToUser/' + this.signInUser.uid).on('value', function(notifyContent) {
+          if (notifyContent) {
+            self.notifyToUser = notifyContent.val();
+          }
+        });
+      },
+      // ユーザー通知を解除する
+      ClearNotifyToUser: function() {
+        let self = this;
+        firebase.database().ref('NotifyToUser/' + this.signInUser.uid).once('value', function(notifyContent) {
+          this.notifyToUserModalContent = '';
+          
+          let notifyToUserVal = notifyContent.val();
+          let notifyToUserList = notifyToUserVal.split(self.USER_NOTIFY_DELIMITER);
+          notifyToUserList.splice(0, 1);
+          
+          firebase.database().ref('NotifyToUser/' + self.signInUser.uid).set(notifyToUserList.join('|'));
+        });
+      },
+      ShowNotifyToUserModal: function() {
+        // ユーザー通知画面表示ボタン押下ログ
+        this.OutlogDebug('ユーザー通知画面表示ボタンが押下されました');
+
+        // モーダルへ表示する内容を抽出する
+        this.notifyToUserModalContent = this.notifyToUser.split(this.USER_NOTIFY_DELIMITER)[0];
+
+        // ユーザー通知モーダルを表示する
+        $('#notify-to-user-modal').modal('show');
+      },
+      CancelNotifyToUserModal: function() {
+        $('#notify-to-user-modal').modal('hide');
+      },
+      DeleteNotifyToUserModal: function() {
+        this.ClearNotifyToUser();
+        $('#notify-to-user-modal').modal('hide');
       },
       // アイデア画像の読み込みを行うモーダル表示
       ShowVisionReadImageWindow: function() {
@@ -2136,10 +2339,15 @@ function Init() {
                     self.ShowNotifyModal('アイデアイメージ読み取り結果', 'エラーによりアイデアを読み取ることができませんでした。<br>お手数ですが、管理者までご連絡ください。');
                     resolve('');
 
+                  } else if (visionImageText && visionImageText.indexOf('failed http code') != -1) {
+                    self.ShowNotifyModal('アイデアイメージ読み取り結果', '上手くアイデアを読み取ることができませんでした。<br>お手数ですが、再度読み取りをお試しください。<br>※読み取る角度等を変えてみると良いかもです');
+                    resolve('');
+
                   } else if (visionImageText) {
                     resolve(visionImageText);
                   
                   } else {
+                    self.ShowNotifyModal('アイデアイメージ読み取り結果', 'アイデアを検出できませんでした。<br>お手数ですが、再度読み取りをお試しください。');
                     resolve('');
                   
                   }
@@ -2157,10 +2365,525 @@ function Init() {
           }
         });
       },
+      // コミュニティ情報を初期設定する
+      InitializeCommunityInfo: function() {
+        return new Promise(async resolve => {
+          // トップトレンド情報を表示する
+          await this.GetTopTrendList();
+          
+          // コミュニティ情報を取得
+          this.communityInfo = await this.GetCommunityInfo();
+
+          // コミュニティ情報を初期設定する
+          this.communityImage = DEFAULT_ACCOUNT_IMAGE;
+          this.communityImageName = '';
+          this.communityName = '';
+          this.communityDescription = '';
+          this.communityMemberName = '';
+          $('#community-image').css('opacity', '0.3');
+
+          if (this.communityInfo !== '0') {
+            this.communityImage = 'img/CommunityImage/' + this.communityInfo.detailsInfo.communityId + '/' + this.communityInfo.detailsInfo.imageName;
+            this.communityImageName = this.communityInfo.detailsInfo.imageName;
+            this.communityName = this.communityInfo.detailsInfo.communityName;
+            this.communityDescription = this.ReplaceNewLineSpecial(this.communityInfo.detailsInfo.description);
+            this.communityMemberName = this.communityInfo.selfMemberInfo.memberName;
+            $('#community-image').css('opacity', '1');
+          }
+
+          resolve();
+        });
+      },
+      // 所属コミュニティ情報を取得する
+      GetCommunityInfo: function() {
+        let self = this;
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/get_community_info_from_user_id.php', {userId:self.signInUser.uid}, function(res) {
+              if (res != '0') {
+                resolve(JSON.parse(res));
+              }
+              resolve('0');
+            });
+          });
+        });
+      },
+      // コミュニティへの招待対象ユーザーリストを取得する
+      GetInvitationUserIdList: function() {
+        let self = this;
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/community_invitation.php', {hostUserId:[self.signInUser.uid], invitationUserId:[]}, function(res) {
+              if (res != '0') {
+                // resolve(JSON.parse(res));
+              }
+              resolve(['AJVLYmH4O6g14MVJot0hUlgCOLA2']);
+            });
+          });
+        });
+      },
+      // ユーザーをコミュニティへ招待する
+      InvitationUser: async function(userId, communityId) {
+        // コミュニティ参加を可能にする
+        let invitationCommunityList = await this.GetInvitationCommunityList(userId);
+        await firebase.database().ref('CommunityInvitation/' + userId).set(invitationCommunityList + communityId);
+
+        // コミュニティへ招待された事をユーザーへ通知する
+        let notifyToUserList = await this.GetNotifyToUserList(userId);
+        notifyMessage = 'コミュニティへの招待が届いています。\nコミュニティページを確認してみてください。';
+        firebase.database().ref('NotifyToUser/' + userId).set(notifyToUserList + notifyMessage);
+      },
+      // 指定ユーザーの招待状況を取得する
+      GetInvitationCommunityList: function(userId) {
+        return new Promise(resolve => {
+          firebase.database().ref('CommunityInvitation/' + userId).once('value', function(invitationCommunityId) {
+            let returnInvitationCommunityList = '';
+  
+            if (invitationCommunityId) {
+              let invitationCommunityIdVal = invitationCommunityId.val();
+              if (invitationCommunityIdVal) {
+                returnInvitationCommunityList = invitationCommunityIdVal + ',';
+              }
+            }
+
+            resolve(returnInvitationCommunityList);
+          });
+        });
+      },
+      // 指定ユーザーの通知状況を取得する
+      GetNotifyToUserList: function(userId) {
+        return new Promise(resolve => {
+          firebase.database().ref('NotifyToUser/' + userId).once('value', function(notifyContent) {
+            let returnNotifyToUser = '';
+
+            if (notifyContent) {
+              let notifyContentVal = notifyContent.val();
+              if (notifyContentVal) {
+                returnNotifyToUser = notifyContentVal + ',';
+              }
+            }
+
+            resolve(returnNotifyToUser);
+          });
+        });
+      },
+      // ローカルフォルダからコミュニティイメージを選択する
+      SelectCommunityImage: function() {
+
+        let self = this;
+
+        $(function() {
+          $('#community-image-select').click();
+          $('#community-image-select').on('change', function() {
+            
+            if (this.files && this.files.length > 0) {
+              let selectFile = this.files[0];
+              
+              // 画像ファイルのみ処理を行う
+              if (selectFile.type.startsWith('image/')) {
+                
+                // 選択ファイル名を保持する
+                self.communityImageName = selectFile.name;
+
+                // ファイルの相対パスを読み込む
+                let fileReader = new FileReader();
+                fileReader.readAsDataURL(selectFile);
+                
+                // ファイルのサムネイルを画面へ表示する
+                fileReader.onload = function() {
+                  self.communityImage = fileReader.result;
+                  $('#community-image').css('opacity', '1');
+                };
+              
+              }
+            }
+          });
+        });
+      },
+      // コミュニティの作成を行うモーダル表示
+      ShowCreateCommunityWindow: function() {
+
+        // コミュニティ作成画面表示ボタン押下ログ
+        this.OutlogDebug('コミュニティ作成画面表示ボタンが押下されました');
+
+        // デフォルトで表示名があれば、それを設定する
+        if (this.communityMemberName === '' && this.signInUser && this.signInUser.displayName) {
+          this.communityMemberName = this.signInUser.displayName;
+        }
+
+        // コミュニティ作成モーダルを表示する
+        $('#create-community-modal').modal('show');
+
+        if (this.communityImage !== DEFAULT_ACCOUNT_IMAGE) {
+          $('#community-image').css('opacity', '1');
+        }
+      },
+      // コミュニティ作成確認を行う
+      ConfirmRegistCommunity: function() {
+        this.errorCommunityImage = '';
+        this.errorCommunityName = '';
+        this.errorCommunityDescription = '';
+        this.errorCommunityMemberName = '';
+
+        let isInputProbrem = false;
+
+        // コミュニティイメージ選択チェック
+        if (this.communityImage === DEFAULT_ACCOUNT_IMAGE) {
+          isInputProbrem = true;
+          this.errorCommunityImage = 'コミュニティ用のイメージ画像を選択してください。';
+        }
+        // コミュニティ名入力チェック
+        if (this.communityName.trim().length === 0) {
+          isInputProbrem = true;
+          this.errorCommunityName = 'コミュニティ名を入力してください。';
+        }
+        // コミュニティ説明入力チェック
+        if (this.communityDescription.trim().length === 0) {
+          isInputProbrem = true;
+          this.errorCommunityDescription = 'コミュニティ説明を入力してください。';
+        }
+        // コミュニティ内の表示名入力チェック
+        if (this.communityMemberName.trim().length === 0) {
+          isInputProbrem = true;
+          this.errorCommunityMemberName = 'コミュニティ内での表示名を入力してください。';
+        }
+
+        if (isInputProbrem) {
+          // 入力に問題あり
+          return;
+        }
+
+        // 確認モードにする
+        this.isCreateCommunityCofirm = true;
+      },
+      // コミュニティ情報入力画面を閉じる
+      CloseToInputCommunity: function() {
+        $('#create-community-modal').modal('hide');
+      },
+      // コミュニティ情報入力画面へ戻る
+      ReturnToInputCommunity: function() {
+        this.isCreateCommunityCofirm = false;
+        setTimeout(function() {
+          $('#community-image').css('opacity', '1');
+        }, 1);
+      },
+      // コミュニティ作成に伴う一連の処理を行う
+      CreateCommunityProcess: async function() {
+        // コミュニティ作成処理を行う
+        let isSuccessCreateCommunity = await this.CreateCommunity();
+        if (isSuccessCreateCommunity === '0') {
+          // コミュニティ作成完了の通知を行う
+          this.ShowNotifyModal('コミュニティ作成結果', 'コミュニティ作成中にエラーが発生しました。<br>エラーが続くようでしたら、お問い合わせ画面より管理者へ連絡してください。');
+          return;
+        }
+
+        // コミュニティ作成完了の通知を行う
+        this.ShowNotifyModal('コミュニティ作成結果', '正常にコミュニティが作成され、コミュニティメンバー候補者へ招待が送られました。');
+                
+        // コミュニティ作成モーダルを表示する
+        $('#create-community-modal').modal('hide');
+
+        // コミュニティ情報の初期化を行う
+        await this.InitializeCommunityInfo();
+
+        // 招待対象のユーザーIDリストを取得する
+        this.invitationUserIdList = await this.GetInvitationUserIdList();
+
+        // コミュニティメンバー候補への招待を送る
+        let self = this;
+        this.invitationUserIdList.forEach(function(invitationUserId) {
+          self.InvitationUser(invitationUserId, self.communityInfo.detailsInfo.communityId);
+        });
+      },
+      // コミュニティ作成を行う
+      CreateCommunity: function() {
+        let communityId = (this.communityInfo === '0') ? '' : this.communityInfo.detailsInfo.communityId;
+        
+        let ideaTrendList = '';
+        this.topMemoryTrendList.forEach(function(trendInfo) {
+          ideaTrendList += (ideaTrendList) ? ',' : '';
+          ideaTrendList += trendInfo.trend;
+        });
+        
+        let communityImage = this.communityImageName;
+
+        let self = this;
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/update_community.php', {userId:self.signInUser.uid, communityId:communityId, memberName:self.communityMemberName, ideaTrendList:ideaTrendList, communityName:self.communityName, description:self.communityDescription, imageName:communityImage}, async function(res) {
+              if (res != '0') {
+                try {
+                  let responseJson = JSON.parse(res);
+                  await self.UpdateCommunityImage(responseJson.communityId);
+
+                  // コミュニティトークルームを保持するための土台を作成する
+                  firebase.database().ref('CommunityTalk/' + responseJson.communityId + '/0').set({message:'',talkDate:'',userId:''});
+
+                } catch {
+                  resolve('0');
+                }
+                
+                resolve('1');
+              }
+              resolve('0');
+            });
+          });
+        });
+      },
+      // コミュニティイメージを更新する
+      UpdateCommunityImage: function(communityId) {
+        return new Promise(resolve => {
+          if (this.communityImage != DEFAULT_ACCOUNT_IMAGE) {
+
+            if ($('#community-image-select').prop('files').length == 0) {
+              resolve(true);
+              
+            } else {
+
+              // 選択中のアカウントイメージファイル
+              let communityImageFile = $('#community-image-select').prop('files')[0];
+              let formData = new FormData();
+              formData.append('communityImage', communityImageFile);
+              formData.append('communityId', communityId);
+
+              $(function() {
+                $.ajax({
+                  url: './Api/Upload/CommunityImageUpload.php',
+                  type: 'post',
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  cache: false,
+                })
+                .done(function(response) {
+                  if (response == '1') {
+                    resolve(true);
+                  } else {
+                    resolve(false);
+                  }
+                })
+                .fail(function() {
+                  resolve(false);
+                });
+              });
+
+            }
+
+          } else {
+            resolve(true);
+
+          }
+        });
+      },
+      // コミュニティへの招待を感知する
+      EventNotifyCommunityInvitation: function() {
+        let self = this;
+        firebase.database().ref('CommunityInvitation/' + this.signInUser.uid).on('value', function(communityInvitation) {
+          if (communityInvitation) {
+            self.invitationCommunityId = communityInvitation.val();
+          }
+        });
+      },
+      // コミュニティへの参加を行うモーダル表示
+      ShowInvitationCommunityWindow: function() {
+
+        // コミュニティ参加画面表示ボタン押下ログ
+        this.OutlogDebug('コミュニティ参加画面表示ボタンが押下されました');
+
+        // 招待されているコミュニティをリスト化する
+        let self = this;
+        let invitationCommunityInfo = {};
+        this.invitationCommunityList = [];
+        this.invitationCommunityId.split(',').forEach(async function(communityId) {
+          if (communityId) {
+            invitationCommunityInfo = await self.GetCommunityInfoFromCommunityId(communityId);
+          
+            if (invitationCommunityInfo !== '0') {
+              self.invitationCommunityList.push(invitationCommunityInfo);
+            }
+          }
+        });
+
+        // コミュニティ参加モーダルを表示する
+        $('#invitation-community-modal').modal('show');
+
+        if (this.communityImage !== DEFAULT_ACCOUNT_IMAGE) {
+          $('#community-image').css('opacity', '1');
+        }
+      },
+      // 指定のコミュニティ情報を取得する
+      GetCommunityInfoFromCommunityId: function(communityId) {
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/get_community_info_from_community_id.php', {communityId:communityId}, function(res) {
+              if (res != '0') {
+                resolve(JSON.parse(res));
+              }
+              resolve('0');
+            });
+          });
+        });
+      },
+      // コミュニティへの参加を確認する
+      ConfirmJoiningCommunity: function(communityId) {
+        this.joiningMemberName = '';
+        this.joiningCommunityId = communityId;
+        $('#joining-community-modal').modal('show');
+      },
+      // コミュニティ参加処理を行う
+      JoiningCommunityProcess: async function() {
+
+        // コミュニティ内の表示名入力チェック
+        if (this.joiningMemberName.trim().length === 0) {
+          this.errorInvitationCommunityMemberName = '参加するコミュニティ内での表示名を入力してください。';
+          return;
+        }
+
+        // コミュニティ参加処理を行う
+        let isSuccessJoiningCommunity = await this.JoiningCommunity();
+        if (isSuccessJoiningCommunity === '0') {
+          // コミュニティ参加完了の通知を行う
+          this.ShowNotifyModal('コミュニティ参加結果', 'コミュニティ参加中にエラーが発生しました。<br>エラーが続くようでしたら、お問い合わせ画面より管理者へ連絡してください。');
+          return;
+        }
+
+        // コミュニティ参加完了の通知を行う
+        this.ShowNotifyModal('コミュニティ参加結果', '正常にコミュニティへの参加が完了しました。');
+                
+        // コミュニティ参加モーダルを非表示にする
+        $('#invitation-community-modal').modal('hide');
+        $('#joining-community-modal').modal('hide');
+
+        // コミュニティ情報の初期化を行う
+        await this.InitializeCommunityInfo();
+      },
+      // コミュニティへ参加する
+      JoiningCommunity: function() {
+        let self = this;
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/joining_community.php', {userId:self.signInUser.uid, communityId:self.joiningCommunityId, memberName:self.joiningMemberName}, function(res) {
+              if (res != '0') {
+                resolve('1');
+              }
+              resolve('0');
+            });
+          });
+        });
+      },
+      // コミュニティでおしゃべりする
+      CommunityTalk: async function() {
+        let self = this;
+        await firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId + '/' + this.GetNowTimestamp()).set({
+          message: self.communityTalkInput,
+          talkDate: self.GetNowDatetime(self.DATE_FORMAT.DATE_TIME),
+          userId: self.signInUser.uid,
+        });
+        this.communityTalkInput = '';
+        this.ShowCommunityTalk();
+      },
+      // コミュニティのおしゃべり内容を表示する
+      EventShowCommunityTalk: function() {
+        let self = this;
+        return new Promise(resolve => {
+          firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId).on('value', function(communityTalkList) {
+
+            self.communityTalkShowFlg = true;
+
+            let communityTalkListVal = communityTalkList.val();
+            if (communityTalkListVal && self.page === self.PAGES.PAGE_COMMUNITY_TALK_ROOM) {
+              self.communityTalkList = [];
+              let communityTalkListCount = Object.keys(communityTalkListVal).length;
+              let communityTalkCounter = 0;
+              Object.keys(communityTalkListVal).forEach(function(communityTalkKey) {
+
+                communityTalkCounter++;
+                if (communityTalkKey != '0') {
+                  self.communityTalkList.push({
+                    communityTalkKey: communityTalkKey,
+                    message: communityTalkListVal[communityTalkKey].message,
+                    talkDate: communityTalkListVal[communityTalkKey].talkDate,
+                    userId: communityTalkListVal[communityTalkKey].userId,
+                    accountImagePath: './img/AccountImage/' + communityTalkListVal[communityTalkKey].userId + '/account.jpg',
+                  });
+                  // TODO ↑　画像無し時の対応をしたい
+                  if (communityTalkCounter >= communityTalkListCount) {
+                    document.scrollingElement.scrollTop = self.communityTalkScrollTop;
+                    self.communityTalkShowFlg = false;
+                    resolve();
+                  }
+                }
+
+              });
+            } else {
+              self.communityTalkShowFlg = false;
+              resolve();
+            }
+          });
+        });
+      },
+      // コミュニティのおしゃべり内容を表示する
+      ShowCommunityTalk: function() {
+        let self = this;
+        return new Promise(resolve => {
+          firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId).once('value', function(communityTalkList) {
+            let communityTalkListVal = communityTalkList.val();
+            if (communityTalkListVal) {
+              self.communityTalkList = [];
+              let communityTalkListCount = Object.keys(communityTalkListVal).length;
+              let communityTalkCounter = 0;
+              Object.keys(communityTalkListVal).sort().forEach(async function(communityTalkKey) {
+
+                communityTalkCounter++;
+                if (communityTalkKey != '0') {
+                  self.communityTalkList.push({
+                    communityTalkKey: communityTalkKey,
+                    message: communityTalkListVal[communityTalkKey].message,
+                    talkDate: communityTalkListVal[communityTalkKey].talkDate,
+                    userId: communityTalkListVal[communityTalkKey].userId,
+                    accountImagePath: await self.GetAccountImagePath(communityTalkListVal[communityTalkKey].userId),
+                  });
+                  if (communityTalkCounter >= communityTalkListCount) {
+                    self.DownMaxScroll();
+                    resolve();
+                  }
+                }
+              });
+            }
+            resolve();
+          });
+        });
+      },
+      // 
+      EventSaveCommunityTalkScrollTop: function() {
+        let self = this;
+        $(window).scroll(function() {
+          if (self.communityTalkShowFlg === false) {
+            self.communityTalkScrollTop = $(this).scrollTop();
+          }
+        });
+      },
+      // コミュニティトークのスクロールを最下部にする
+      DownMaxScroll: function() {
+        $(function() {
+          // $('#community-talk-box').scrollTop(500);
+          // $(document).scrollTop(99999999999);
+          document.scrollingElement.scrollTop = 999999999;
+        });
+      },
+      // コミュニティトークルームモーダルを開く
+      OpenCommunityTalkModal: function() {
+        // コミュニティトーク内容を表示する
+        this.ShowCommunityTalk();
+        this.DownMaxScroll();
+
+        $('#community-talk-modal').modal('show');
+      },
     },
     filters: {
+      // 改行コード => HTML用改行タグ
       ReplaceNewLine: function(text) {
-        return (text) ? text.replace(/\r\n|\r|\n/ig, '<br>') : '';
+        return (text) ? text.replace(/\r\n|\r|\n|\|ｶｲｷﾞｮｳ\|/ig, '<br>') : '';
       },
       ReplaceTaskBox: function(text) {
         if (text) {
