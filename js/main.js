@@ -99,6 +99,8 @@ function Init() {
       isListLoading: false,
       confirmArchive: {},
       isTaskClickStop: false,
+      confirmTaskEditInfo: {},
+      taskEditContent: '',
 
       // LINE通知関連
       lineNotifyToken: '',
@@ -1877,8 +1879,8 @@ function Init() {
           this.UpdateApp();
         }
       },
-      // 入力欄へのタスク挿入
-      InsertTaskSymbol: function() {
+      // アイデア入力欄へのタスク挿入
+      InsertTaskSymbolToMemoryInput: function() {
         let self = this;
         $(function() {
 
@@ -1899,6 +1901,32 @@ function Init() {
             $('#memory-input').focus();
             $('#memory-input').get(0).selectionStart = cursorPosition + self.TASK_NO_CHECK_WORD.length;
             $('#memory-input').get(0).selectionEnd = cursorPosition + self.TASK_NO_CHECK_WORD.length;
+          }, 100);
+
+        });
+      },
+      // アイデア入力欄へのタスク挿入
+      InsertTaskSymbolToTaskEdit: function() {
+        let self = this;
+        $(function() {
+
+          // カーソル位置取得
+          let cursorPosition = $('#task-edit-input').get(0).selectionStart;
+
+          // 挿入場所の前後文字列取得
+          let insertBefore = self.taskEditContent.slice(0, cursorPosition);
+          let insertAfter = self.taskEditContent.slice(cursorPosition);
+          // 再セットする入力内容を作成
+          let resetContent = insertBefore + self.TASK_NO_CHECK_WORD + insertAfter;
+          
+          // 入力欄へ反映する
+          self.taskEditContent = resetContent;
+
+          // 挿入内容反映タイミングの関係上、絶妙に遅らせて対応する
+          setTimeout(function() {
+            $('#task-edit-input').focus();
+            $('#task-edit-input').get(0).selectionStart = cursorPosition + self.TASK_NO_CHECK_WORD.length;
+            $('#task-edit-input').get(0).selectionEnd = cursorPosition + self.TASK_NO_CHECK_WORD.length;
           }, 100);
 
         });
@@ -1991,6 +2019,43 @@ function Init() {
 
               // アーカイブ確認用モーダルを閉じる
               $('#confirm-archive-modal').modal('hide');
+
+              this.MoveMemoryList();
+            }
+          });
+      },
+      // タスクの編集確認を行う
+      ConfirmTaskEdit: function(taskInfo) {
+
+        // タスク編集ボタン押下ログ
+        this.OutlogDebug('タスク編集ボタンが押下されました');
+
+        // タスク内容を編集するモーダルを表示する
+        this.confirmTaskEditInfo = taskInfo;
+        this.taskEditContent = this.$options.filters.ReplaceTaskEdit(taskInfo.task);
+        $('#task-edit-modal').modal('show');
+      },
+      // タスクを編集する
+      EditTask: function(taskInfo, task) {
+
+        // タスク編集実行ボタン押下ログ
+        this.OutlogDebug('タスク編集実行ボタンが押下されました');
+
+        firebase.database().ref('Tasks/' + this.signInUser.uid + '/' + taskInfo.taskKey + '/content')
+          .set(task, (err) => {
+            if (err) {
+
+            } else {
+
+              // 管理者へ投稿された旨を通知
+              if (DEVELOP_MODE === false) {
+                $(function() {
+                  $.post('./Api/LINE/LineNotify.php', {'notifyMessage': 'タスクが編集されました。'});
+                });
+              }
+
+              // タスク内容を編集するモーダルを閉じる
+              $('#task-edit-modal').modal('hide');
 
               this.MoveMemoryList();
             }
@@ -2291,6 +2356,15 @@ function Init() {
             .replace(/\|■\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;')
             .replace(/\|ﾀｽｸ\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"></i></span>&nbsp;')
             .replace(/\|ﾀｽｸC\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;');
+        } else {
+          return '';
+        }
+      },
+      ReplaceTaskEdit: function(text) {
+        if (text) {
+          return text
+            .replace(/\|□\|/ig, '|ﾀｽｸ|')
+            .replace(/\|■\|/ig, '|ﾀｽｸC|');
         } else {
           return '';
         }

@@ -157,7 +157,7 @@
         </div>
         <textarea id="memory-input" class="form-control" v-model="memoryContent" :style="{height: memoryInputHeight + 'px'}" v-on:change="SaveInputMemory();" v-on:focus="AnimationHideHeaderMenu(); AnimationMemoryInputControl();" v-on:blur="AnimationMemoryInputControl();"></textarea>
         <div id="memory-input-control" class="icon-color box-sizing-common" :style="{bottom: (memoryInputHeight * 0.2)  + 'px'}">
-          <span class="h1" v-on:click="InsertTaskSymbol();"><i class="fas fa-check-circle"></i></span><br><br>
+          <span class="h1" v-on:click="InsertTaskSymbolToMemoryInput();"><i class="fas fa-check-circle"></i></span><br><br>
           <span class="h1" v-on:click="ShowVisionReadImageWindow();"><i class="fas fa-image"></i></span>
           <span id="memory-input-control-toggle" class="box-sizing-common h4" v-on:click="AnimationMemoryInputControl();"><i class="fas fa-bars center-box"></i></span>
         </div>
@@ -198,7 +198,10 @@
           </div>
           <div class="row mt-3 memory-list-row" v-for="taskInfo in taskList" v-show="listType === LIST_TYPE.LIST_TASKS">
             <p :id="'task-list-content-' + taskInfo.taskKey" class="task-list-content" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(taskInfo.task))"></p>
-            <span class="memory-list-regist-date">{{taskInfo.registDate | PreviousDays}}&nbsp;{{taskInfo.registDate | RegistDateFormatToList}}<button type="button" class="share-button btn btn-sm btn-success" v-on:click="ConfirmArchive(taskInfo);"><i class="fas fa-file-archive"></i></button></span>
+            <span class="memory-list-regist-date">{{taskInfo.registDate | PreviousDays}}&nbsp;{{taskInfo.registDate | RegistDateFormatToList}}
+              <button type="button" class="share-button btn btn-sm btn-success" v-on:click="ConfirmArchive(taskInfo);"><i class="fas fa-file-archive"></i></button>
+              <button type="button" class="task-edit-button btn btn-sm btn-success" v-on:click="ConfirmTaskEdit(taskInfo);"><i class="fas fa-pen"></i></button>
+            </span>
           </div>
           <div class="row mb-6"></div>
           <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
@@ -817,6 +820,28 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-success" v-on:click="DeleteNotifyToUserModal();">この通知はもう表示しない</button>
               <button type="button" class="btn btn-outline-success" v-on:click="CancelNotifyToUserModal();">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- タスク内容を編集するモーダル -->
+      <div class="modal fade" id="task-edit-modal" tabindex="-1" role="dialog" aria-labelledby="task-edit-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">タスクを編集する</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body relative-box">
+              <textarea id="task-edit-input" class="form-control" v-model="taskEditContent" :style="{height: (memoryInputHeight * 0.7) + 'px'}"></textarea>
+              <span id="insert-task-icon" class="h1 icon-color" v-on:click="InsertTaskSymbolToTaskEdit();"><i class="fas fa-check-circle"></i></span>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="EditTask(confirmTaskEditInfo, taskEditContent);">更新</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
             </div>
           </div>
         </div>
