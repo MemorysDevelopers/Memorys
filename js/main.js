@@ -75,8 +75,15 @@ function Init() {
       isCopyToClipboardSuccess: false,  // クリップボードへのコピーが成功したか否か
 
       // 検索系
+      loadSearchIcon: '',
       isSearchAiLoding: false,  // AI検索中の際に表示するロードアニメーション発動
       listAiSearchText: '',  // AI検索用検索キーワード
+      isSearchSingleWordLoding: false,  // 単語検索中の際に表示するロードアニメーション発動
+      singleWordSearchText: '',  // 単語検索用検索キーワード
+      SEARCH_TYPES: {
+        ROBOT: 'robot',
+        SINGLE_WORD: 'lens',
+      },
 
       // メンテ
       mainteUserId: '',
@@ -104,6 +111,11 @@ function Init() {
 
       // シェア通知フラグ
       isShareNotify: false,
+      
+      // ユーザー通知関連
+      notifyToUser: '',
+      notifyToUserModalContent: '',
+      USER_NOTIFY_DELIMITER: '|',
 
     },
     // インスタンス作成時に呼び出される
@@ -164,6 +176,9 @@ function Init() {
 
       // シェア通知判定用のイベントを定義
       this.EventShareNotify();
+      
+      // ユーザー通知判定用のイベントを定義
+      this.EventNotifyToUser();
       
     },
     updated: function() {
@@ -391,7 +406,7 @@ function Init() {
             this.memoryList.splice();
   
             // ロボットによるロードアニメーションを開始する
-            this.StartLoadingSearchRobot();
+            this.StartLoadingSearch(this.SEARCH_TYPES.ROBOT);
 
             // AIによる類似した思考メモの検索
             let searchAiResult = await this.memoryAi.SearchAi(this.listAiSearchText);
@@ -405,7 +420,7 @@ function Init() {
             }
 
             // ロボットによるロードアニメーションを終了する
-            this.StopMoveLoadingSearchRobot();
+            this.StopMoveLoadingSearch(this.SEARCH_TYPES.ROBOT);
 
             // 検索キーワードを初期化する
             this.listAiSearchText = '';
@@ -415,44 +430,105 @@ function Init() {
           }
         }
       },
-      // 検索中にロボットが動くアニメーションを実装
-      StartLoadingSearchRobot: function() {
+      // 単語検索キーワード入力を行う
+      ShowInputSingleWordSearch: function() {
 
-        this.isSearchAiLoding = true;
+        // 単語検索ボタン押下ログ
+        this.OutlogDebug('単語検索ボタンが押下されました');
+
+        // 単語検索キーワード入力用モーダルを表示する
+        $('#single-word-search-modal').modal('show');
+      },
+      // 思考一覧ページから単語検索を行う
+      SearchSingleWoreFromMemoryList: async function() {
+        if (this.isSearchSingleWordLoding == false && this.singleWordSearchText.trim().length > 0) {
+          try {
+
+            // 単語検索処理実行ログ
+            this.OutlogDebug('単語検索処理が実行されました');
+
+            // 単語検索キーワード入力用モーダルを非表示にする
+            $('#single-word-search-modal').modal('hide');
+
+            // 検索結果を初期化
+            this.memoryList = [];
+            this.memoryList.splice();
+  
+            // レンズによるロードアニメーションを開始する
+            this.StartLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+            // AIによる類似した思考メモの検索
+            let searchSingleWordResult = await this.memoryAi.SearchSingleWord(this.singleWordSearchText);
+            this.memoryList = searchSingleWordResult;
+            this.memoryList.splice();
+
+            // レンズによるロードアニメーションを終了する
+            this.StopMoveLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+            // 検索キーワードを初期化する
+            this.singleWordSearchText = '';
+  
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      },
+      // 検索中にロボットが動くアニメーションを実装
+      StartLoadingSearch: function(searchType) {
+
+        this.loadSearchIcon = searchType;
+
+        if (searchType == this.SEARCH_TYPES.ROBOT) {
+          this.isSearchAiLoding = true;
+        
+        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
+          this.isSearchSingleWordLoding = true;
+        
+        }
 
         let self = this;
         $(function() {
-          $('#load-search-robot').css('display', 'inline');
-          self.MoveRightOutLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).css('display', 'inline');
+          self.MoveRightOutLoadingSearch(searchType);
         });
       },
       // ロボットが右に去っていくアニメーション
-      MoveRightOutLoadingSearchRobot: function() {
-        if (this.isSearchAiLoding) {
+      MoveRightOutLoadingSearch: function(searchType) {
+        if ((searchType == this.SEARCH_TYPES.ROBOT && this.isSearchAiLoding) || (searchType == this.SEARCH_TYPES.SINGLE_WORD && this.isSearchSingleWordLoding)) {
           let self = this;
-          $('#load-search-robot').animate({left: '110%'}, 1500, function() {
-            $('#load-search-robot').css('left', '-50%');
-            self.MoveLeftInLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).animate({left: '110%'}, 1500, function() {
+            $('#load-search-' + self.loadSearchIcon).css('left', '-50%');
+            self.MoveLeftInLoadingSearch(searchType);
           });
         }
       },
       // ロボットが左から現れるアニメーション
-      MoveLeftInLoadingSearchRobot: function() {
-        if (this.isSearchAiLoding) {
+      MoveLeftInLoadingSearch: function(searchType) {
+        if ((searchType == this.SEARCH_TYPES.ROBOT && this.isSearchAiLoding) || (searchType == this.SEARCH_TYPES.SINGLE_WORD && this.isSearchSingleWordLoding)) {
           let self = this;
-          $('#load-search-robot').animate({left: '50%'}, 1500, function() {
-            $('#load-search-robot-around').animate({fontSize: '5.0em'}, 1000, function() {
-              $('#load-search-robot-around').animate({fontSize: '2.0em'}, 1000, function() {
-                self.MoveRightOutLoadingSearchRobot();
+          $('#load-search-' + self.loadSearchIcon).animate({left: '50%'}, 1500, function() {
+            $('#load-search-' + self.loadSearchIcon + '-around').animate({fontSize: '5.0em'}, 1000, function() {
+              $('#load-search-' + self.loadSearchIcon + '-around').animate({fontSize: '2.0em'}, 1000, function() {
+                self.MoveRightOutLoadingSearch(searchType);
               });
             });
           });
         }
       },
       // ロボットアニメーションを止める
-      StopMoveLoadingSearchRobot: function() {
-        $('#load-search-robot').css('display', 'none');
-        this.isSearchAiLoding = false;
+      StopMoveLoadingSearch: function(searchType) {
+
+        $('#load-search-' + this.loadSearchIcon).css('display', 'none');
+
+        if (searchType == this.SEARCH_TYPES.ROBOT) {
+          this.isSearchAiLoding = false;
+        
+        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
+          this.isSearchSingleWordLoding = false;
+        
+        }
+
+        this.loadSearchIcon = '';
       },
       // 思考一覧ページへ遷移する
       MoveMemoryList: async function() {
@@ -2021,6 +2097,44 @@ function Init() {
       ClearShareNotify: function() {
         firebase.database().ref('ShareNotify/' + this.signInUser.uid).set(false);
       },
+      EventNotifyToUser: function() {
+        let self = this;
+        firebase.database().ref('NotifyToUser/' + this.signInUser.uid).on('value', function(notifyContent) {
+          if (notifyContent) {
+            self.notifyToUser = notifyContent.val();
+          }
+        });
+      },
+      // ユーザー通知を解除する
+      ClearNotifyToUser: function() {
+        let self = this;
+        firebase.database().ref('NotifyToUser/' + this.signInUser.uid).once('value', function(notifyContent) {
+          this.notifyToUserModalContent = '';
+          
+          let notifyToUserVal = notifyContent.val();
+          let notifyToUserList = notifyToUserVal.split(self.USER_NOTIFY_DELIMITER);
+          notifyToUserList.splice(0, 1);
+          
+          firebase.database().ref('NotifyToUser/' + self.signInUser.uid).set(notifyToUserList.join('|'));
+        });
+      },
+      ShowNotifyToUserModal: function() {
+        // ユーザー通知画面表示ボタン押下ログ
+        this.OutlogDebug('ユーザー通知画面表示ボタンが押下されました');
+
+        // モーダルへ表示する内容を抽出する
+        this.notifyToUserModalContent = this.notifyToUser.split(this.USER_NOTIFY_DELIMITER)[0];
+
+        // ユーザー通知モーダルを表示する
+        $('#notify-to-user-modal').modal('show');
+      },
+      CancelNotifyToUserModal: function() {
+        $('#notify-to-user-modal').modal('hide');
+      },
+      DeleteNotifyToUserModal: function() {
+        this.ClearNotifyToUser();
+        $('#notify-to-user-modal').modal('hide');
+      },
       // アイデア画像の読み込みを行うモーダル表示
       ShowVisionReadImageWindow: function() {
 
@@ -2136,10 +2250,15 @@ function Init() {
                     self.ShowNotifyModal('アイデアイメージ読み取り結果', 'エラーによりアイデアを読み取ることができませんでした。<br>お手数ですが、管理者までご連絡ください。');
                     resolve('');
 
+                  } else if (visionImageText && visionImageText.indexOf('failed http code') != -1) {
+                    self.ShowNotifyModal('アイデアイメージ読み取り結果', '上手くアイデアを読み取ることができませんでした。<br>お手数ですが、再度読み取りをお試しください。<br>※読み取る角度等を変えてみると良いかもです');
+                    resolve('');
+
                   } else if (visionImageText) {
                     resolve(visionImageText);
                   
                   } else {
+                    self.ShowNotifyModal('アイデアイメージ読み取り結果', 'アイデアを検出できませんでした。<br>お手数ですが、再度読み取りをお試しください。');
                     resolve('');
                   
                   }

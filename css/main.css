@@ -180,6 +180,23 @@ body {
   width: 30px;
 }
 
+#notify-to-user-show {
+  background-color: white;
+  border-radius: 30px;
+  border: 3px solid rgb(1, 179, 1);
+  color: rgb(1, 156, 1);
+  cursor: pointer;
+  font-size: 1.5em;
+  height: 60px;
+  left: -10px;
+  line-height: 55px;
+  position: fixed;
+  text-align: center;
+  top: 20%;
+  width: 60px;
+  z-index: 100;
+}
+
 #menu-show {
   /* background-color: green; */
   border: 3px solid rgb(1, 179, 1);
@@ -386,6 +403,22 @@ body {
   font-size: 2.0em;
 }
 
+#load-search-lens {
+  display: none;
+  left: 50%;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  -moz-transform: translate(-50%,-50%);
+  -ms-transform: translate(-50%,-50%);
+  -o-transform: translate(-50%,-50%);
+  -webkit-transform: translate(-50%,-50%);
+}
+#load-search-lens-around {
+  color: #28a745;
+  font-size: 2.0em;
+}
+
 .memory-list-row {
   border: 2px solid rgb(14, 168, 0);
   /* background-color: aquamarine; */
@@ -508,7 +541,7 @@ body {
 
 
 /* 通知アニメーション */
-.share-notify-animation {
+.notify-animation {
   animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
   -moz-animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
   -ms-animation: 0.5s ease 0s infinite alternate share-notify-animation-exe;
