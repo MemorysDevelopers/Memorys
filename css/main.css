@@ -61,6 +61,16 @@ body {
   -webkit-transform: translate(-50%, -50%);
   top: 5%;
 }
+.bottom-right-box {
+  bottom: 5%;
+  position: absolute;
+  right: 5%;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+}
 .center-box-absolute {
   left: 50%;
   position: absolute;
@@ -327,6 +337,16 @@ body {
   font-size: 1.5em;
   line-height: 1.8em;
 }
+#insert-task-icon {
+  position: absolute;
+  right: -5%;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  top: 5%;
+}
 .top-right-box-list {
   position: absolute;
   right: -15px;
@@ -475,6 +495,11 @@ body {
 }
 
 .share-button {
+  border-radius: 50px;
+  margin-left: 10px;
+}
+
+.task-edit-button {
   border-radius: 50px;
   margin-left: 10px;
 }
