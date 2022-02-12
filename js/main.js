@@ -92,6 +92,8 @@ function Init() {
       taskList: [],
       TASK_CHECKED: '|■|',
       TASK_NO_CHECK: '|□|',
+      TASK_CHECKED_WORD: '|ﾀｽｸC|',
+      TASK_NO_CHECK_WORD: '|ﾀｽｸ|',
       TASK_CHECKED_HTML: '<i class="fas fa-check-circle"></i>',
       TASK_NO_CHECK_HTML: '<i class="far fa-check-circle"></i>',
       isListLoading: false,
@@ -1887,7 +1889,7 @@ function Init() {
           let insertBefore = self.memoryContent.slice(0, cursorPosition);
           let insertAfter = self.memoryContent.slice(cursorPosition);
           // 再セットする入力内容を作成
-          let resetContent = insertBefore + self.TASK_NO_CHECK + insertAfter;
+          let resetContent = insertBefore + self.TASK_NO_CHECK_WORD + insertAfter;
           
           // 入力欄へ反映する
           self.memoryContent = resetContent;
@@ -1895,8 +1897,8 @@ function Init() {
           // 挿入内容反映タイミングの関係上、絶妙に遅らせて対応する
           setTimeout(function() {
             $('#memory-input').focus();
-            $('#memory-input').get(0).selectionStart = cursorPosition + self.TASK_NO_CHECK.length;
-            $('#memory-input').get(0).selectionEnd = cursorPosition + self.TASK_NO_CHECK.length;
+            $('#memory-input').get(0).selectionStart = cursorPosition + self.TASK_NO_CHECK_WORD.length;
+            $('#memory-input').get(0).selectionEnd = cursorPosition + self.TASK_NO_CHECK_WORD.length;
           }, 100);
 
         });
@@ -1955,7 +1957,8 @@ function Init() {
       },
       // 入力内容タスク判定
       IsContentTask: function() {
-        return (this.memoryContent.indexOf(this.TASK_CHECKED) != -1 || this.memoryContent.indexOf(this.TASK_NO_CHECK) != -1);
+        return (this.memoryContent.indexOf(this.TASK_CHECKED) != -1 || this.memoryContent.indexOf(this.TASK_NO_CHECK) != -1
+                || this.memoryContent.indexOf(this.TASK_CHECKED_WORD) != -1 || this.memoryContent.indexOf(this.TASK_NO_CHECK_WORD) != -1);
       },
       // タスクのアーカイブ確認を行う
       ConfirmArchive: function(taskInfo) {
@@ -2000,8 +2003,8 @@ function Init() {
       // タスクアイコンを識別用文字列に変換する
       ReplaceTaskBoxReverse: function(text) {
         return text
-          .replace(/<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"><\/i><\/span>&nbsp;/ig, this.TASK_NO_CHECK)
-          .replace(/<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"><\/i><\/span>&nbsp;/ig, this.TASK_CHECKED);
+          .replace(/<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"><\/i><\/span>&nbsp;/ig, this.TASK_NO_CHECK_WORD)
+          .replace(/<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"><\/i><\/span>&nbsp;/ig, this.TASK_CHECKED_WORD);
       },
       // リスト種別初期化
       InitializeListType: function() {
@@ -2285,7 +2288,9 @@ function Init() {
         if (text) {
           return text
             .replace(/\|□\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"></i></span>&nbsp;')
-            .replace(/\|■\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;');
+            .replace(/\|■\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;')
+            .replace(/\|ﾀｽｸ\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"></i></span>&nbsp;')
+            .replace(/\|ﾀｽｸC\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;');
         } else {
           return '';
         }
