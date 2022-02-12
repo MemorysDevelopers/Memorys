@@ -48,6 +48,9 @@
           </div>
         </div>
       </div>
+      
+      <!-- ユーザー通知アイコン -->
+      <div v-if="notifyToUser" id="notify-to-user-show" class="notify-animation" v-on:click="ShowNotifyToUserModal();"><i class="fas fa-bell"></i></div>
 
       <!-- ログイン画面 -->
       <template v-if="page === PAGES.PAGE_LOGIN">
@@ -160,7 +163,7 @@
         </div>
         <div class="relative-box" :style="{height: (memoryInputHeight * 0.17)  + 'px'}">
           <button type="button" id="memory-link-list" class="btn btn-outline-success" v-on:click="MoveMemoryList();"><i class="fas fa-th-list fa-fw"></i>&nbsp;一覧</button>
-          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();" :class="(isShareNotify == true) ? 'share-notify-animation' : ''"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
+          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();" :class="(isShareNotify == true) ? 'notify-animation' : ''"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
           <button type="button" id="memory-button" class="btn btn-outline-success" v-on:click="ConfirmMemorys();"><i class="fas fa-brain fa-fw"></i>&nbsp;記憶</button>
         </div>
       </template>
@@ -181,6 +184,7 @@
           <div>{{listTitle}}一覧</div>
           <div class="crecive-box" v-if="listType === LIST_TYPE.LIST_MEMORYS">
             <button type="button" id="ai-search-button" class="btn btn-outline-success" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
+            <button type="button" id="single-word-search-button" class="btn btn-outline-success" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
           </div>
           <div class="icon-color top-right-box-list h4">
             <span v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;
@@ -200,6 +204,7 @@
           <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
         </div>
         <span id="load-search-robot-around"><i id="load-search-robot" class="fas fa-robot"></i></span>
+        <span id="load-search-lens-around"><i id="load-search-lens" class="fas fa-search"></i></span>
       </template>
 
       <!-- シェア一覧画面 -->
@@ -719,6 +724,31 @@
         </div>
       </div>
 
+      <!-- 単語検索キーワードを入力するモーダル -->
+      <div class="modal fade" id="single-word-search-modal" tabindex="-1" role="dialog" aria-labelledby="single-word-search-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" id="single-word-search-text" class="form-control" v-model="singleWordSearchText"></input>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="SearchSingleWoreFromMemoryList();">検索</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- アーカイブを確認するモーダル -->
       <div class="modal fade" id="confirm-archive-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-archive-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -769,6 +799,25 @@
               <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
             </div>
             <input type="file" id="vision-image-select">
+          </div>
+        </div>
+      </div>
+      
+      <!-- ユーザー通知内容を表示するモーダル -->
+      <div class="modal fade" id="notify-to-user-modal" tabindex="-1" role="dialog" aria-labelledby="notify-to-user-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">受信した通知</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" v-html="$options.filters.ReplaceNewLine(notifyToUserModalContent)"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="DeleteNotifyToUserModal();">この通知はもう表示しない</button>
+              <button type="button" class="btn btn-outline-success" v-on:click="CancelNotifyToUserModal();">閉じる</button>
+            </div>
           </div>
         </div>
       </div>
