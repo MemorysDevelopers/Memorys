@@ -94,8 +94,8 @@ function Init() {
       TASK_NO_CHECK: '|□|',
       TASK_CHECKED_WORD: '|ﾀｽｸC|',
       TASK_NO_CHECK_WORD: '|ﾀｽｸ|',
-      TASK_CHECKED_HTML: '<i class="fas fa-check-circle"></i>',
-      TASK_NO_CHECK_HTML: '<i class="far fa-check-circle"></i>',
+      TASK_CHECKED_HTML: '<i class="fas fa-check-circle shadow-sm"></i>',
+      TASK_NO_CHECK_HTML: '<i class="far fa-check-circle shadow-sm"></i>',
       isListLoading: false,
       confirmArchive: {},
       isTaskClickStop: false,
@@ -2068,8 +2068,8 @@ function Init() {
       // タスクアイコンを識別用文字列に変換する
       ReplaceTaskBoxReverse: function(text) {
         return text
-          .replace(/<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"><\/i><\/span>&nbsp;/ig, this.TASK_NO_CHECK_WORD)
-          .replace(/<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"><\/i><\/span>&nbsp;/ig, this.TASK_CHECKED_WORD);
+          .replace(/<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle shadow-sm"><\/i><\/span>&nbsp;/ig, this.TASK_NO_CHECK_WORD)
+          .replace(/<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle shadow-sm"><\/i><\/span>&nbsp;/ig, this.TASK_CHECKED_WORD);
       },
       // リスト種別初期化
       InitializeListType: function() {
@@ -2352,10 +2352,10 @@ function Init() {
       ReplaceTaskBox: function(text) {
         if (text) {
           return text
-            .replace(/\|□\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"></i></span>&nbsp;')
-            .replace(/\|■\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;')
-            .replace(/\|ﾀｽｸ\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle"></i></span>&nbsp;')
-            .replace(/\|ﾀｽｸC\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle"></i></span>&nbsp;');
+            .replace(/\|□\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle shadow-sm"></i></span>&nbsp;')
+            .replace(/\|■\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle shadow-sm"></i></span>&nbsp;')
+            .replace(/\|ﾀｽｸ\|/ig, '<span class="task-box icon-color" check-value="0"><i class="far fa-check-circle shadow-sm"></i></span>&nbsp;')
+            .replace(/\|ﾀｽｸC\|/ig, '<span class="task-box icon-color" check-value="1"><i class="fas fa-check-circle shadow-sm"></i></span>&nbsp;');
         } else {
           return '';
         }
