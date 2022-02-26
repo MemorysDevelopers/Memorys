@@ -2344,6 +2344,11 @@ function Init() {
           }
         });
       },
+      JumpPageTop: function() {
+        $(function() {
+          $("html,body").animate({scrollTop:0}, 750);
+        });
+      },
     },
     filters: {
       ReplaceNewLine: function(text) {

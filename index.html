@@ -12,7 +12,7 @@
     <!-- ホーム画面に表示されるアプリ名 -->
     <meta name="apple-mobile-web-app-title" content="Memorys">
     <!-- ホーム画面に表示されるアプリアイコン -->
-    <link rel="apple-touch-icon" href="img/memoryslogo.jpg">
+    <link rel="apple-touch-icon" href="img/memoryslogo_transparent.png">
 
     <link rel="shortcut icon" href="./img/favicon.ico">
 
@@ -55,7 +55,7 @@
       <!-- ログイン画面 -->
       <template v-if="page === PAGES.PAGE_LOGIN">
         <div class="head-box box-sizing-common">
-          <img class="headimage shadow-sm" src="img/memoryslogo.jpg">考え方は人それぞれ
+          <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">考え方は人それぞれ
         </div>
         <div id="pwa-explanation-box">
           <button type="button" class="btn btn-success shadow-sm" data-toggle="modal" data-target="#pwa-explanation-modal"><i class="fab fa-apple fa-fw"></i>&nbsp;このアプリをiPhoneに追加してみる</button>
@@ -151,7 +151,7 @@
           </div>
           <div class="row crecive-row"></div>
         </div>
-        <img id="backimage" src="img/memoryslogo.jpg">
+        <img id="backimage" src="img/memoryslogo_transparent.png">
         <div id="access-account-box" class="box-sizing-common">
           <span class="login-account-image-around shadow-sm" v-for="loginAccountPath in loginAccountList"><img class="login-account-image" :src="loginAccountPath"></span>
         </div>
@@ -208,6 +208,8 @@
         </div>
         <span id="load-search-robot-around"><i id="load-search-robot" class="fas fa-robot"></i></span>
         <span id="load-search-lens-around"><i id="load-search-lens" class="fas fa-search"></i></span>
+        
+        <img class="page-up-button bottom-right-box-fixed" src="img/memoryslogo_transparent.png" v-on:click="JumpPageTop();">
       </template>
 
       <!-- シェア一覧画面 -->
@@ -224,6 +226,8 @@
           <div class="row mb-6"></div>
           <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
         </div>
+
+        <img class="page-up-button bottom-right-box-fixed" src="img/memoryslogo_transparent.png" v-on:click="JumpPageTop();">
       </template>
 
       <!-- お問い合わせ画面 -->
@@ -438,7 +442,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -516,7 +520,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -607,7 +611,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -628,7 +632,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -647,7 +651,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -671,7 +675,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -689,7 +693,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -707,7 +711,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -732,7 +736,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -757,7 +761,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -784,7 +788,7 @@
               </div>
             </div>
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -811,7 +815,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">受信した通知</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">受信した通知</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -830,7 +834,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">タスクを編集する</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">タスクを編集する</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -852,7 +856,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header shadow-sm">
-              <img class="headimage shadow-sm" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
