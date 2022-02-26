@@ -113,6 +113,16 @@ body {
   bottom: 5%;
   position: fixed;
 }
+.bottom-right-box-fixed {
+  bottom: 5%;
+  position: fixed;
+  right: 5%;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+}
 
 .head-box {
   font-size: 1.6rem;
@@ -582,4 +592,10 @@ body {
   to {
     border-width: 5px;
   }
+}
+
+.page-up-button {
+  width: 50px;
+  opacity: 0.8;
+  z-index: 99;
 }

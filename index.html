@@ -12,7 +12,7 @@
     <!-- ホーム画面に表示されるアプリ名 -->
     <meta name="apple-mobile-web-app-title" content="Memorys">
     <!-- ホーム画面に表示されるアプリアイコン -->
-    <link rel="apple-touch-icon" href="img/memoryslogo.jpg">
+    <link rel="apple-touch-icon" href="img/memoryslogo_transparent.png">
 
     <link rel="shortcut icon" href="./img/favicon.ico">
 
@@ -55,42 +55,42 @@
       <!-- ログイン画面 -->
       <template v-if="page === PAGES.PAGE_LOGIN">
         <div class="head-box box-sizing-common">
-          <img class="headimage" src="img/memoryslogo.jpg">考え方は人それぞれ
+          <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">考え方は人それぞれ
         </div>
         <div id="pwa-explanation-box">
-          <button type="button" class="btn btn-success" data-toggle="modal" data-target="#pwa-explanation-modal"><i class="fab fa-apple fa-fw"></i>&nbsp;このアプリをiPhoneに追加してみる</button>
+          <button type="button" class="btn btn-success shadow-sm" data-toggle="modal" data-target="#pwa-explanation-modal"><i class="fab fa-apple fa-fw"></i>&nbsp;このアプリをiPhoneに追加してみる</button>
         </div>
         <div class="crecive-box">
-          <button type="button" id="update-app-button-in-login" class="btn btn-outline-success" v-on:click="UpdateApp();"><i class="fas fa-upload fa-fw"></i>&nbsp;アプリ更新</button>
-          <button type="button" id="app-explanation-button-in-login" class="btn btn-outline-success" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
+          <button type="button" id="update-app-button-in-login" class="btn btn-outline-success shadow-sm" v-on:click="UpdateApp();"><i class="fas fa-upload fa-fw"></i>&nbsp;アプリ更新</button>
+          <button type="button" id="app-explanation-button-in-login" class="btn btn-outline-success shadow-sm" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
         </div>
         <div id="sign-in-box" class="crecive-box-ll">
           <div id="error-message-box" class="form-group">{{loginErrorMessage}}</div>
           <div class="form-group">
-            <input type="email" class="form-control" id="sign-in-address" placeholder="メールアドレス" v-model="inputSignInUserAddress">
+            <input type="email" class="form-control shadow-sm" id="sign-in-address" placeholder="メールアドレス" v-model="inputSignInUserAddress">
           </div>
           <div class="form-group">
-            <input type="password" class="form-control" id="sign-in-password" placeholder="パスワード" v-model="inputSignInUserPassword">
+            <input type="password" class="form-control shadow-sm" id="sign-in-password" placeholder="パスワード" v-model="inputSignInUserPassword">
           </div>
           <div class="form-group">
-            <button type="button" id="sign-up-button" class="btn btn-outline-success box-sizing-common" v-on:click="SignUp();"><i class="far fa-envelope fa-fw"></i>&nbsp;アカウント作成</button>
-            <button type="button" id="sign-in-button" class="btn btn-outline-success box-sizing-common" v-on:click="SignIn();"><i class="far fa-envelope fa-fw"></i>&nbsp;ログイン</button>
+            <button type="button" id="sign-up-button" class="btn btn-outline-success box-sizing-common shadow-sm" v-on:click="SignUp();"><i class="far fa-envelope fa-fw"></i>&nbsp;アカウント作成</button>
+            <button type="button" id="sign-in-button" class="btn btn-outline-success box-sizing-common shadow-sm" v-on:click="SignIn();"><i class="far fa-envelope fa-fw"></i>&nbsp;ログイン</button>
           </div>
           <div class="form-group crecive-box-l">
-            <button type="button" id="google-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInGoogle();"><i class="fab fa-google fa-fw"></i>&nbsp;Googleでログイン</button>
+            <button type="button" id="google-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button shadow-sm" v-on:click="SignInGoogle();"><i class="fab fa-google fa-fw"></i>&nbsp;Googleでログイン</button>
           </div>
           <div class="form-group">
-            <button type="button" id="twitter-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInTwitter();"><i class="fab fa-twitter fa-fw"></i>&nbsp;Twitterでログイン</button>
+            <button type="button" id="twitter-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button shadow-sm" v-on:click="SignInTwitter();"><i class="fab fa-twitter fa-fw"></i>&nbsp;Twitterでログイン</button>
           </div>
           <div class="form-group">
-            <button type="button" id="facebook-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInFacebook();"><i class="fab fa-facebook fa-fw"></i>&nbsp;Facebookでログイン</button>
+            <button type="button" id="facebook-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button shadow-sm" v-on:click="SignInFacebook();"><i class="fab fa-facebook fa-fw"></i>&nbsp;Facebookでログイン</button>
           </div>
           <div class="form-group">
-            <button type="button" id="github-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button" v-on:click="SignInGithub();"><i class="fab fa-github fa-fw"></i>&nbsp;Githubでログイン</button>
+            <button type="button" id="github-sign-in-button" class="btn btn-outline-success o-auth-sign-in-button shadow-sm" v-on:click="SignInGithub();"><i class="fab fa-github fa-fw"></i>&nbsp;Githubでログイン</button>
           </div>
         </div>
         <div class="crecive-box-l">
-          <button type="button" id="move-inquiry-button-in-login" class="btn btn-outline-success" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
+          <button type="button" id="move-inquiry-button-in-login" class="btn btn-outline-success shadow-sm" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
         </div>
         <div class="row crecive-row"></div>
         <div class="row crecive-row"></div>
@@ -107,11 +107,11 @@
           </div>
         </div>
 
-        <div id="menu-show" v-on:click="AnimationHeaderMenu();"><i class="fas fa-bars"></i></div>
+        <div id="menu-show" class="shadow-sm" v-on:click="AnimationHeaderMenu();"><i class="fas fa-bars"></i></div>
         <div id="menu-box" class="shadow container-fluid">
           <div class="row crecive-row"></div>
           <div class="row">
-            <div id="login-info-box" class="col">ログイン&nbsp;&nbsp;<button type="button" class="btn btn-outline-success" v-on:click="MoveMyPage();"><i class="fas fa-user-cog"></i>&nbsp;マイページ</button></div>
+            <div id="login-info-box" class="col">ログイン&nbsp;&nbsp;<button type="button" class="btn btn-outline-success shadow-sm" v-on:click="MoveMyPage();"><i class="fas fa-user-cog"></i>&nbsp;マイページ</button></div>
           </div>
           <div class="row">
             <div class="col">{{(signInUser) ? signInUser : {} | ShowLoginUserName}}</div>
@@ -127,44 +127,44 @@
           <div id="analysis-by-datetime-box-crecive-row" class="row crecive-row"></div>
           <div class="row">
             <div id="analysis-by-datetime-box" class="col relative-box">
-              <p></p>
+              <p class="shadow-sm"></p>
               <span id="analysis-by-datetime-regist-date" class="memory-list-regist-date"></span>
             </div>
           </div>
           <div class="row crecive-row"></div>
           <div class="row">
             <div class="col-6">
-              <button type="button" id="move-inquiry-button" class="btn btn-outline-success" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
+              <button type="button" id="move-inquiry-button" class="btn btn-outline-success shadow-sm" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
             </div>
             <div class="col-6 text-right">
-              <button type="button" id="app-explanation-button" class="btn btn-outline-success" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
+              <button type="button" id="app-explanation-button" class="btn btn-outline-success shadow-sm" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
             </div>
           </div>
           <div class="row crecive-row"></div>
           <div class="row">
             <div class="col-6">
-              <button type="button" id="sign-out-button" class="btn btn-outline-success" v-on:click="SignOut();"><i class="fas fa-sign-out-alt fa-fw"></i>&nbsp;ログアウト</button>
+              <button type="button" id="sign-out-button" class="btn btn-outline-success shadow-sm" v-on:click="SignOut();"><i class="fas fa-sign-out-alt fa-fw"></i>&nbsp;ログアウト</button>
             </div>
             <div class="col-6 text-right">
-              <button type="button" id="update-app-button" class="btn btn-outline-success" v-on:click="UpdateApp();"><i class="fas fa-upload fa-fw"></i>&nbsp;アプリ更新</button>
+              <button type="button" id="update-app-button" class="btn btn-outline-success shadow-sm" v-on:click="UpdateApp();"><i class="fas fa-upload fa-fw"></i>&nbsp;アプリ更新</button>
             </div>
           </div>
           <div class="row crecive-row"></div>
         </div>
-        <img id="backimage" src="img/memoryslogo.jpg">
+        <img id="backimage" src="img/memoryslogo_transparent.png">
         <div id="access-account-box" class="box-sizing-common">
-          <span class="login-account-image-around" v-for="loginAccountPath in loginAccountList"><img class="login-account-image" :src="loginAccountPath"></span>
+          <span class="login-account-image-around shadow-sm" v-for="loginAccountPath in loginAccountList"><img class="login-account-image" :src="loginAccountPath"></span>
         </div>
-        <textarea id="memory-input" class="form-control" v-model="memoryContent" :style="{height: memoryInputHeight + 'px'}" v-on:change="SaveInputMemory();" v-on:focus="AnimationHideHeaderMenu(); AnimationMemoryInputControl();" v-on:blur="AnimationMemoryInputControl();"></textarea>
+        <textarea id="memory-input" class="form-control shadow-sm" v-model="memoryContent" :style="{height: memoryInputHeight + 'px'}" v-on:change="SaveInputMemory();" v-on:focus="AnimationHideHeaderMenu(); AnimationMemoryInputControl();" v-on:blur="AnimationMemoryInputControl();"></textarea>
         <div id="memory-input-control" class="icon-color box-sizing-common" :style="{bottom: (memoryInputHeight * 0.2)  + 'px'}">
           <span class="h1" v-on:click="InsertTaskSymbolToMemoryInput();"><i class="fas fa-check-circle"></i></span><br><br>
           <span class="h1" v-on:click="ShowVisionReadImageWindow();"><i class="fas fa-image"></i></span>
           <span id="memory-input-control-toggle" class="box-sizing-common h4" v-on:click="AnimationMemoryInputControl();"><i class="fas fa-bars center-box"></i></span>
         </div>
         <div class="relative-box" :style="{height: (memoryInputHeight * 0.17)  + 'px'}">
-          <button type="button" id="memory-link-list" class="btn btn-outline-success" v-on:click="MoveMemoryList();"><i class="fas fa-th-list fa-fw"></i>&nbsp;一覧</button>
-          <button type="button" id="memory-link-share-list" class="btn btn-outline-success" v-on:click="MoveMomoryShareList();" :class="(isShareNotify == true) ? 'notify-animation' : ''"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
-          <button type="button" id="memory-button" class="btn btn-outline-success" v-on:click="ConfirmMemorys();"><i class="fas fa-brain fa-fw"></i>&nbsp;記憶</button>
+          <button type="button" id="memory-link-list" class="btn btn-outline-success shadow-sm" v-on:click="MoveMemoryList();"><i class="fas fa-th-list fa-fw"></i>&nbsp;一覧</button>
+          <button type="button" id="memory-link-share-list" class="btn btn-outline-success shadow-sm" v-on:click="MoveMomoryShareList();" :class="(isShareNotify == true) ? 'notify-animation' : ''"><i class="fas fa-share-square fa-fw"></i>&nbsp;シェア一覧</button>
+          <button type="button" id="memory-button" class="btn btn-outline-success shadow-sm" v-on:click="ConfirmMemorys();"><i class="fas fa-brain fa-fw"></i>&nbsp;記憶</button>
         </div>
       </template>
 
@@ -179,51 +179,55 @@
           </div>
         </div>
 
-        <div class="alert page-list-head relative-box">
+        <div class="alert page-list-head relative-box shadow">
           <div>{{(signInUser) ? signInUser : {} | ShowLoginUserName}}さんだけの</div>
           <div>{{listTitle}}一覧</div>
           <div class="crecive-box" v-if="listType === LIST_TYPE.LIST_MEMORYS">
-            <button type="button" id="ai-search-button" class="btn btn-outline-success" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
-            <button type="button" id="single-word-search-button" class="btn btn-outline-success" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
+            <button type="button" id="ai-search-button" class="btn btn-outline-success shadow-sm" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
+            <button type="button" id="single-word-search-button" class="btn btn-outline-success shadow-sm" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
           </div>
           <div class="icon-color top-right-box-list h4">
-            <span v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;
-            <span v-on:click="SetListType(LIST_TYPE.LIST_TASKS);"><i class="fas fa-tasks"></i></span>
+            <span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;
+            <span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_TASKS);"><i class="fas fa-tasks"></i></span>
           </div>
         </div>
         <div class="container-fluid">
-          <div class="row mt-3 memory-list-row" v-for="memoryInfo in memoryList" v-show="listType === LIST_TYPE.LIST_MEMORYS">
+          <div class="row mt-3 memory-list-row shadow" v-for="memoryInfo in memoryList" v-show="listType === LIST_TYPE.LIST_MEMORYS">
             <p :class="'memory-list-content-' + memoryInfo.memoryKey" v-html="$options.filters.ReplaceNewLine(memoryInfo.content)"></p>
-            <span class="memory-list-regist-date">{{memoryInfo.registDate | PreviousDays}}&nbsp;{{memoryInfo.registDate | RegistDateFormatToList}}<button type="button" class="share-button btn btn-sm" :class="(memoryInfo.isShared == '1') ? 'btn-danger' : 'btn-success'" v-on:click="ConfirmShare(memoryInfo);"><i class="fas fa-share fa-fw"></i>{{ (memoryInfo.isShared == '1') ? "&nbsp;解除" : '' }}</button></span>
+            <span class="memory-list-regist-date">{{memoryInfo.registDate | PreviousDays}}&nbsp;{{memoryInfo.registDate | RegistDateFormatToList}}<button type="button" class="share-button btn btn-sm shadow-sm" :class="(memoryInfo.isShared == '1') ? 'btn-danger' : 'btn-success'" v-on:click="ConfirmShare(memoryInfo);"><i class="fas fa-share fa-fw"></i>{{ (memoryInfo.isShared == '1') ? "&nbsp;解除" : '' }}</button></span>
           </div>
-          <div class="row mt-3 memory-list-row" v-for="taskInfo in taskList" v-show="listType === LIST_TYPE.LIST_TASKS">
+          <div class="row mt-3 memory-list-row shadow" v-for="taskInfo in taskList" v-show="listType === LIST_TYPE.LIST_TASKS">
             <p :id="'task-list-content-' + taskInfo.taskKey" class="task-list-content" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(taskInfo.task))"></p>
             <span class="memory-list-regist-date">{{taskInfo.registDate | PreviousDays}}&nbsp;{{taskInfo.registDate | RegistDateFormatToList}}
-              <button type="button" class="share-button btn btn-sm btn-success" v-on:click="ConfirmArchive(taskInfo);"><i class="fas fa-file-archive"></i></button>
-              <button type="button" class="task-edit-button btn btn-sm btn-success" v-on:click="ConfirmTaskEdit(taskInfo);"><i class="fas fa-pen"></i></button>
+              <button type="button" class="share-button btn btn-sm btn-success shadow-sm" v-on:click="ConfirmArchive(taskInfo);"><i class="fas fa-file-archive"></i></button>
+              <button type="button" class="task-edit-button btn btn-sm btn-success shadow-sm" v-on:click="ConfirmTaskEdit(taskInfo);"><i class="fas fa-pen"></i></button>
             </span>
           </div>
           <div class="row mb-6"></div>
-          <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+          <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
         </div>
         <span id="load-search-robot-around"><i id="load-search-robot" class="fas fa-robot"></i></span>
         <span id="load-search-lens-around"><i id="load-search-lens" class="fas fa-search"></i></span>
+        
+        <img class="page-up-button bottom-right-box-fixed" src="img/memoryslogo_transparent.png" v-on:click="JumpPageTop();">
       </template>
 
       <!-- シェア一覧画面 -->
       <template v-else-if="page === PAGES.PAGE_SHARE_LIST">
-        <div class="alert page-list-head">
+        <div class="alert page-list-head shadow">
           <div>シェアアイデア一覧</div>
         </div>
         <div class="container-fluid">
-          <div class="row mt-5 memory-list-row relative-box" v-for="memoryInfo in memoryShareList">
+          <div class="row mt-5 memory-list-row relative-box shadow" v-for="memoryInfo in memoryShareList">
             <span class="share-account-image-around"><img class="share-account-image" :src="memoryInfo.accountImagePath"></span>
             <p :class="'memory-list-content-' + memoryInfo.memoryKey" v-html="$options.filters.ReplaceNewLine(memoryInfo.content)"></p>
-            <span class="memory-list-regist-date relative-box"><button type="button" class="good-button btn btn-sm btn-success" v-on:click="GoodMemory(memoryInfo, memoryInfo.accountImageUserId);">共感<span class="good-count badge badge-light">{{(memoryInfo.goodCount) ? memoryInfo.goodCount : 0}}</span></button></span>
+            <span class="memory-list-regist-date relative-box"><button type="button" class="good-button btn btn-sm btn-success shadow-sm" v-on:click="GoodMemory(memoryInfo, memoryInfo.accountImageUserId);">共感<span class="good-count badge badge-light">{{(memoryInfo.goodCount) ? memoryInfo.goodCount : 0}}</span></button></span>
           </div>
           <div class="row mb-6"></div>
-          <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+          <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
         </div>
+
+        <img class="page-up-button bottom-right-box-fixed" src="img/memoryslogo_transparent.png" v-on:click="JumpPageTop();">
       </template>
 
       <!-- お問い合わせ画面 -->
@@ -236,8 +240,8 @@
           <div class="row crecive-row"></div>
           <div id="inquiry-icons" class="row">
             <div class="col h3">
-              <a href="https://twitter.com/DevelopMemorys" target="_blank"><i class="fab fa-twitter"></i></a>&nbsp;&nbsp;
-              <a href="https://lin.ee/3mg2Vnv" target="_blank"><i class="fab fa-line"></i></a>
+              <a class="shadow-sm" href="https://twitter.com/DevelopMemorys" target="_blank"><i class="fab fa-twitter"></i></a>&nbsp;&nbsp;
+              <a class="shadow-sm" href="https://lin.ee/3mg2Vnv" target="_blank"><i class="fab fa-line"></i></a>
             </div>
           </div>
           <div class="row crecive-row" v-if="inquiryCheck"></div>
@@ -251,11 +255,11 @@
             <div class="col">
               <div class="form-group">
                 <label for="inquiry-address">メールアドレス</label>
-                <input type="email" class="form-control" id="inquiry-address" placeholder="name@example.com" v-model="inquiryAddress">
+                <input type="email" class="form-control shadow-sm" id="inquiry-address" placeholder="name@example.com" v-model="inquiryAddress">
               </div>
               <div class="form-group">
                 <label for="inquiry-content">お問い合わせ内容</label>
-                <textarea class="form-control" id="inquiry-content" rows="10" placeholder="content..." v-model="inquiryContent"></textarea>
+                <textarea class="form-control shadow-sm" id="inquiry-content" rows="10" placeholder="content..." v-model="inquiryContent"></textarea>
               </div>
             </div>
           </div>
@@ -263,11 +267,11 @@
           <div class="row">
             <div class="col-7 col-sm-10"></div>
             <div class="col-5 col-sm-2">
-              <button class="form-control btn btn-outline-success" id="inquiry-send" v-on:click="ConfirmInquiry();">送信</button>
+              <button class="form-control btn btn-outline-success shadow-sm" id="inquiry-send" v-on:click="ConfirmInquiry();">送信</button>
             </div>
           </div>
         </div>
-        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;<span id="returnButtonInInquiry"></span></button>
+        <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;<span id="returnButtonInInquiry"></span></button>
       </template>
       
       <!-- マイページ画面 -->
@@ -277,7 +281,7 @@
         </div>
         <div class="row crecive-box">
           <div id="account-image-upload-box" class="col icon-color">
-            <span id="account-image-around"><img id="account-image" :src="accountImage"></span>
+            <span id="account-image-around shadow-sm"><img id="account-image" :src="accountImage"></span>
             <span class="h1" v-on:click="SelectAccountImage();"><i class="fas fa-camera"></i></span>
           </div>
         </div>
@@ -304,7 +308,7 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <input id="input-line-notify-token" type="text" class="form-control" placeholder="LINE通知用トークン" v-model="lineNotifyToken">
+              <input id="input-line-notify-token" type="text" class="form-control shadow-sm" placeholder="LINE通知用トークン" v-model="lineNotifyToken">
             </div>
             <p>
               こちらにはLINE Notify APIにて利用されるトークンを登録してください。<br>
@@ -316,7 +320,7 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <button type="button" class="btn btn-success" v-on:click="LineNotifyTest();">LINE通知テスト</button>
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="LineNotifyTest();">LINE通知テスト</button>
             </div>
           </div>
         </div>
@@ -330,7 +334,7 @@
         <div class="row crecive-row"></div>
         <hr color="#a9a9a9"> -->
 
-        <div class="row crecive-box">
+        <!-- <div class="row crecive-box">
           <div class="col">コロナ感染情報通知登録</div>
         </div>
         <div class="row crecive-box">
@@ -394,23 +398,23 @@
           </div>
         </div>
         <div class="row crecive-row"></div>
-        <hr color="#a9a9a9">
+        <hr color="#a9a9a9"> -->
 
         <div class="row crecive-box">
           <div class="col">アイデア傾向ランキング</div>
         </div>
         <div id="trend-box" class="row crecive-box text-center">
-          <div class="alert alert-success" role="alert" v-for="trendInfo in topMemoryTrendList">
+          <div class="alert alert-success shadow-sm" role="alert" v-for="trendInfo in topMemoryTrendList">
             {{trendInfo.trend}}&nbsp;<span class="badge badge-success">{{trendInfo.trendCount}}</span>
           </div>
         </div>
         <div class="row crecive-box-ll" v-if="isAdminUser">
           <div class="col">
-            <button type="button" class="btn btn-outline-success" v-on:click="MoveMainte();"><i class="fas fa-cog"></i>&nbsp;メンテナンス</button>
+            <button type="button" class="btn btn-outline-success shadow-sm" v-on:click="MoveMainte();"><i class="fas fa-cog"></i>&nbsp;メンテナンス</button>
           </div>
         </div>
-        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
-        <button type="button" id="update-my-page-button" class="btn btn-success" v-on:click="UpdateMyPage();"><i class="fas fa-user-circle fa-fw"></i>&nbsp;保存</button>
+        <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+        <button type="button" id="update-my-page-button" class="btn btn-success shadow-sm" v-on:click="UpdateMyPage();"><i class="fas fa-user-circle fa-fw"></i>&nbsp;保存</button>
         <input type="file" id="account-image-select">
       </template>
 
@@ -419,16 +423,16 @@
         <div class="row crecive-box">
           <div class="col">
             <div class="form-group">
-              <input type="text" class="form-control" v-model="mainteUserId">
+              <input type="text" class="form-control shadow-sm" v-model="mainteUserId">
             </div>
           </div>
         </div>
         <div class="row crecive-box">
           <div class="col">
-            <button type="button" class="btn btn-outline-success" v-on:click="ResetIdeaTrend(mainteUserId);"><i class="fas fa-database"></i>&nbsp;過去思考再解析</button>
+            <button type="button" class="btn btn-outline-success shadow-sm" v-on:click="ResetIdeaTrend(mainteUserId);"><i class="fas fa-database"></i>&nbsp;過去思考再解析</button>
           </div>
         </div>
-        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+        <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
       </template>
 
 
@@ -437,17 +441,17 @@
       <div class="modal fade" id="memorys-ai-modal" tabindex="-1" role="dialog" aria-labelledby="memorys-ai-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="memorys-ai-modal-center-title"></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="memorys-ai-modal-body" class="modal-body">
+            <div id="memorys-ai-modal-body" class="modal-body shadow-sm">
               <!-- AI解析した過去の思考メモが表示される -->
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" data-dismiss="modal">閉じる</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" data-dismiss="modal">閉じる</button>
             </div>
           </div>
         </div>
@@ -457,13 +461,13 @@
       <div class="modal fade" id="pwa-explanation-modal" tabindex="-1" role="dialog" aria-labelledby="pwa-explanation-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header shadow-sm">
               <h5 class="modal-title" id="pwa-explanation-modal-center-title"></h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="pwa-explanation-modal-body" class="modal-body">
+            <div id="pwa-explanation-modal-body" class="modal-body shadow-sm">
               <div id="pwa-explanation-indicators" class="carousel slide carousel-fade">
                 <div class="carousel-inner">
                   <div class="carousel-item active">
@@ -472,7 +476,7 @@
                       画面下にあるメニューを開くためのアイコンを押します<br>
                       ※予め<span class="font-strong">Safariで当アプリを開く</span>必要があります<br v-if="isCopyToClipboard">
                       <br v-if="isCopyToClipboard">
-                      <button type="button" id="memorys-url-copy-button" class="btn btn-success" v-on:click="CopyMemorysUrl();" v-if="isCopyToClipboard">当アプリURLをコピー&nbsp;<span class="h5"><i class="far fa-clipboard" v-if="isCopyToClipboardSuccess == false"></i><i class="fas fa-clipboard-check" v-if="isCopyToClipboardSuccess"></i></span></button>
+                      <button type="button" id="memorys-url-copy-button" class="btn btn-success shadow-sm" v-on:click="CopyMemorysUrl();" v-if="isCopyToClipboard">当アプリURLをコピー&nbsp;<span class="h5"><i class="far fa-clipboard" v-if="isCopyToClipboardSuccess == false"></i><i class="fas fa-clipboard-check" v-if="isCopyToClipboardSuccess"></i></span></button>
                     </p>
                   </div>
                   <div class="carousel-item">
@@ -505,7 +509,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-success" data-dismiss="modal">閉じる</button>
+              <button type="button" class="btn btn-success shadow-sm" data-dismiss="modal">閉じる</button>
             </div>
           </div>
         </div>
@@ -515,17 +519,17 @@
       <div class="modal fade" id="app-explanation-modal" tabindex="-1" role="dialog" aria-labelledby="app-explanation-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="app-explanation-modal-center-title">アプリについて ver{{appVersion}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="app-explanation-modal-body" class="modal-body">
+            <div id="app-explanation-modal-body" class="modal-body shadow-sm">
               <div class="container-fluid">
                 <div class="row">
                   <a href="https://yururito.gradation.jp/MemorysDevelopment/" target="_blank">
-                    <button type="button" class="btn btn-outline-success"><i class="fas fa-envelope-open-text"></i>&nbsp;Release Note</button>
+                    <button type="button" class="btn btn-outline-success shadow-sm"><i class="fas fa-envelope-open-text"></i>&nbsp;Release Note</button>
                   </a>
                 </div>
                 <div class="row crecive-row"></div>
@@ -595,8 +599,8 @@
                 </div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" data-dismiss="modal">閉じる</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" data-dismiss="modal">閉じる</button>
             </div>
           </div>
         </div>
@@ -606,18 +610,18 @@
       <div class="modal fade" id="confirm-share-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-share-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-share-modal-center-title">こちらのアイデアメモをシェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="confirm-share-modal-body" class="modal-body">
+            <div id="confirm-share-modal-body" class="modal-body shadow-sm">
               {{confirmShareMemory.content}}
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="ShareMemory(confirmShareMemory);">シェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}する</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="ShareMemory(confirmShareMemory);">シェア{{ (confirmShareMemory.isShared == '1') ? "解除" : '' }}する</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">閉じる</button>
             </div>
           </div>
         </div>
@@ -627,16 +631,16 @@
       <div class="modal fade" id="confirm-memorys-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-memorys-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-memorys-modal-center-title">こちらのアイデアメモを記憶しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="confirm-memorys-modal-body" class="modal-body" v-html="IsContentTask() ? $options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(memoryContent)) : memoryContent"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="RegistMemory();">記憶する</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            <div id="confirm-memorys-modal-body" class="modal-body shadow-sm" v-html="IsContentTask() ? $options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(memoryContent)) : memoryContent"></div>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="RegistMemory();">記憶する</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">閉じる</button>
             </div>
           </div>
         </div>
@@ -646,21 +650,21 @@
       <div class="modal fade" id="inquiry-confirm-modal" tabindex="-1" role="dialog" aria-labelledby="inquiry-confirm-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">こちらのお問い合わせ内容で送信しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body shadow-sm">
               <div>■返信用メールアドレス</div>
               <p>{{inquiryAddress}}</p>
               <div>■お問い合わせ内容</div>
               <p v-html="$options.filters.ReplaceNewLine(inquiryContent)"></p>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="SendInquiry();">送信</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="SendInquiry();">送信</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">キャンセル</button>
             </div>
           </div>
         </div>
@@ -670,15 +674,15 @@
       <div class="modal fade" id="inquiry-result-modal" tabindex="-1" role="dialog" aria-labelledby="inquiry-result-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">お問い合わせ結果</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body" v-html="inquiryResult"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" data-dismiss="modal">OK</button>
+            <div class="modal-body shadow-sm" v-html="inquiryResult"></div>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" data-dismiss="modal">OK</button>
             </div>
           </div>
         </div>
@@ -688,15 +692,15 @@
       <div class="modal fade" id="update-my-page-result-modal" tabindex="-1" role="dialog" aria-labelledby="update-my-page-result-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">マイページ更新結果</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body" v-html="updateMyPageResult"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="UpdateApp();">OK</button>
+            <div class="modal-body shadow-sm" v-html="updateMyPageResult"></div>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="UpdateApp();">OK</button>
             </div>
           </div>
         </div>
@@ -706,8 +710,8 @@
       <div class="modal fade" id="ai-search-list-modal" tabindex="-1" role="dialog" aria-labelledby="ai-search-list-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">AI検索する文章を入力してください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -715,13 +719,13 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <textarea id="list-ai-search-text" class="form-control" v-model="listAiSearchText" :style="{height: (memoryInputHeight * 0.80) + 'px'}"></textarea>
+                  <textarea id="list-ai-search-text" class="form-control shadow-sm" v-model="listAiSearchText" :style="{height: (memoryInputHeight * 0.80) + 'px'}"></textarea>
                 </div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="SearchAiFromMemoryList();">検索</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="SearchAiFromMemoryList();">検索</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">キャンセル</button>
             </div>
           </div>
         </div>
@@ -731,8 +735,8 @@
       <div class="modal fade" id="single-word-search-modal" tabindex="-1" role="dialog" aria-labelledby="single-word-search-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -740,13 +744,13 @@
             <div class="container-fluid">
               <div class="row">
                 <div class="col">
-                  <input type="text" id="single-word-search-text" class="form-control" v-model="singleWordSearchText"></input>
+                  <input type="text" id="single-word-search-text" class="form-control shadow-sm" v-model="singleWordSearchText"></input>
                 </div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="SearchSingleWoreFromMemoryList();">検索</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="SearchSingleWoreFromMemoryList();">検索</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">キャンセル</button>
             </div>
           </div>
         </div>
@@ -756,16 +760,16 @@
       <div class="modal fade" id="confirm-archive-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-archive-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-archive-modal-center-title">こちらのタスクをアーカイブしますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div id="confirm-share-modal-body" class="modal-body" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(confirmArchive.task))"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="ArchiveTask(confirmArchive);">アーカイブする</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            <div id="confirm-share-modal-body" class="modal-body shadow-sm" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(confirmArchive.task))"></div>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="ArchiveTask(confirmArchive);">アーカイブする</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">閉じる</button>
             </div>
           </div>
         </div>
@@ -783,8 +787,8 @@
                 </div>
               </div>
             </div>
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">アイデアが記載された画像を読み込んでください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -792,14 +796,14 @@
             <div class="container-fluid">
               <div class="row">
                 <div id="vision-camera-box" class="col icon-color">
-                  <span id="vision-image-around"><img id="vision-image" :src="visionImage"></span>
-                  <span class="" v-on:click="SelectVisionImage();"><i class="fas fa-image"></i></span>
+                  <span id="vision-image-around" class="shadow-sm"><img id="vision-image" :src="visionImage"></span>
+                  <span class="shadow-sm" v-on:click="SelectVisionImage();"><i class="fas fa-image"></i></span>
                 </div>
               </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="InputVisionImageText();">メモ適用</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="InputVisionImageText();">メモ適用</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">キャンセル</button>
             </div>
             <input type="file" id="vision-image-select">
           </div>
@@ -810,16 +814,16 @@
       <div class="modal fade" id="notify-to-user-modal" tabindex="-1" role="dialog" aria-labelledby="notify-to-user-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">受信した通知</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">受信した通知</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body" v-html="$options.filters.ReplaceNewLine(notifyToUserModalContent)"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="DeleteNotifyToUserModal();">この通知はもう表示しない</button>
-              <button type="button" class="btn btn-outline-success" v-on:click="CancelNotifyToUserModal();">閉じる</button>
+            <div class="modal-body shadow-sm" v-html="$options.filters.ReplaceNewLine(notifyToUserModalContent)"></div>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="DeleteNotifyToUserModal();">この通知はもう表示しない</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" v-on:click="CancelNotifyToUserModal();">閉じる</button>
             </div>
           </div>
         </div>
@@ -829,19 +833,19 @@
       <div class="modal fade" id="task-edit-modal" tabindex="-1" role="dialog" aria-labelledby="task-edit-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">タスクを編集する</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">タスクを編集する</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body relative-box">
+            <div class="modal-body relative-box shadow-sm">
               <textarea id="task-edit-input" class="form-control" v-model="taskEditContent" :style="{height: (memoryInputHeight * 0.7) + 'px'}"></textarea>
-              <span id="insert-task-icon" class="h1 icon-color" v-on:click="InsertTaskSymbolToTaskEdit();"><i class="fas fa-check-circle"></i></span>
+              <span id="insert-task-icon" class="h1 icon-color shadow" v-on:click="InsertTaskSymbolToTaskEdit();"><i class="fas fa-check-circle"></i></span>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="EditTask(confirmTaskEditInfo, taskEditContent);">更新</button>
-              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="EditTask(confirmTaskEditInfo, taskEditContent);">更新</button>
+              <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">キャンセル</button>
             </div>
           </div>
         </div>
@@ -851,15 +855,15 @@
       <div class="modal fade" id="notify-modal" tabindex="-1" role="dialog" aria-labelledby="notify-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
-            <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo.jpg">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
+            <div class="modal-header shadow-sm">
+              <img class="headimage shadow-sm" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">{{modalNotifyTitle}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body" v-html="modalNotifyContent"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-success" v-on:click="HideNotifyModal();">OK</button>
+            <div class="modal-body shadow-sm" v-html="modalNotifyContent"></div>
+            <div class="modal-footer shadow-sm">
+              <button type="button" class="btn btn-success shadow-sm" v-on:click="HideNotifyModal();">OK</button>
             </div>
           </div>
         </div>
