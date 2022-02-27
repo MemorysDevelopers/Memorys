@@ -87,6 +87,16 @@ body {
   -webkit-transform: translate(-50%, -50%);
   top: 5%;
 }
+.bottom-right-box {
+  bottom: 5%;
+  position: absolute;
+  right: 5%;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+}
 .center-box-absolute {
   left: 50%;
   position: absolute;
@@ -128,6 +138,16 @@ body {
 .bottom-box-fixed-vertical {
   bottom: 5%;
   position: fixed;
+}
+.bottom-right-box-fixed {
+  bottom: 5%;
+  position: fixed;
+  right: 5%;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
 }
 
 .head-box {
@@ -356,6 +376,16 @@ body {
   font-size: 1.5em;
   line-height: 1.8em;
 }
+#insert-task-icon {
+  position: absolute;
+  right: -5%;
+  transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  top: 5%;
+}
 .top-right-box-list {
   position: absolute;
   right: -15px;
@@ -457,7 +487,7 @@ body {
 }
 
 .memory-list-regist-date {
-  bottom: 5%;
+  bottom: 8px;
   font-size: 0.8rem;
   position: absolute;
   right: 3%;
@@ -504,6 +534,11 @@ body {
 }
 
 .share-button {
+  border-radius: 50px;
+  margin-left: 10px;
+}
+
+.task-edit-button {
   border-radius: 50px;
   margin-left: 10px;
 }
@@ -719,4 +754,10 @@ body {
   to {
     border-width: 5px;
   }
+}
+
+.page-up-button {
+  width: 50px;
+  opacity: 0.8;
+  z-index: 99;
 }
