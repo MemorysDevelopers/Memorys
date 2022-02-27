@@ -218,7 +218,6 @@ function Init() {
 
       // コミュニティトークの位置保持のためのイベントを定義
       this.EventSaveCommunityTalkScrollTop();
-      
     },
     computed: {
       sortCommunityTalkList() {
@@ -1717,18 +1716,18 @@ function Init() {
                 if (configOpenVal['isInvitationable']) {
                   self.userConfig['isInvitationable'] = configOpenVal['isInvitationable'];
                 } else {
-                  self.userConfig['isInvitationable'] = false;
+                  self.userConfig['isInvitationable'] = true;
                 }
               
               } else {
                 // ユーザー設定を初期化する
                 firebase.database().ref('UserConfigOpen/' + self.signInUser.uid).set({
                   lineNotifyToken: '',
-                  isInvitationable: false,
+                  isInvitationable: true,
                 });
   
                 self.userConfig['lineNotifyToken'] = '';
-                self.userConfig['isInvitationable'] = false;
+                self.userConfig['isInvitationable'] = true;
               }
   
               firebase.database().ref('Covid19NotifyConfig/' + self.signInUser.uid).once('value', function(covid19NotifyConfig) {
@@ -2408,16 +2407,37 @@ function Init() {
           });
         });
       },
+      // 招待許可がされているユーザーのIDを取得する
+      GetInvitationOnUser: function() {
+        return new Promise(resolve => {
+          firebase.database().ref('UserConfigOpen').once('value', function(userConfigOpen) {
+            let returnInvitationOnUserList = [];
+  
+            if (userConfigOpen) {
+              let userConfigOpenVal = userConfigOpen.val();
+              if (userConfigOpenVal) {
+                Object.keys(userConfigOpenVal).forEach(function(configUserId) {
+                  if (userConfigOpenVal[configUserId].isInvitationable == true) {
+                    returnInvitationOnUserList.push(configUserId);
+                  }
+                });
+              }
+            }
+
+            resolve(returnInvitationOnUserList);
+          });
+        });
+      },
       // コミュニティへの招待対象ユーザーリストを取得する
-      GetInvitationUserIdList: function() {
+      GetInvitationUserIdList: function(invitationOnUserIdList) {
         let self = this;
         return new Promise(resolve => {
           $(function() {
-            $.post('./Api/Community/community_invitation.php', {hostUserId:[self.signInUser.uid], invitationUserId:[]}, function(res) {
+            $.post('./Api/Community/community_invitation.php', {hostUserId:[self.signInUser.uid], invitationUserId:invitationOnUserIdList}, function(res) {
               if (res != '0') {
-                // resolve(JSON.parse(res));
+                resolve(JSON.parse(res));
               }
-              resolve(['AJVLYmH4O6g14MVJot0hUlgCOLA2']);
+              resolve([]);
             });
           });
         });
@@ -2426,7 +2446,9 @@ function Init() {
       InvitationUser: async function(userId, communityId) {
         // コミュニティ参加を可能にする
         let invitationCommunityList = await this.GetInvitationCommunityList(userId);
-        await firebase.database().ref('CommunityInvitation/' + userId).set(invitationCommunityList + communityId);
+        if (invitationCommunityList.split(',').includes(communityId) === false) {
+          await firebase.database().ref('CommunityInvitation/' + userId).set(invitationCommunityList + communityId);
+        }
 
         // コミュニティへ招待された事をユーザーへ通知する
         let notifyToUserList = await this.GetNotifyToUserList(userId);
@@ -2569,16 +2591,17 @@ function Init() {
       },
       // コミュニティ作成に伴う一連の処理を行う
       CreateCommunityProcess: async function() {
+        // 招待対象のユーザーIDリストを取得する
+        let invitationOnUserIdList = await this.GetInvitationOnUser();
+        this.invitationUserIdList = await this.GetInvitationUserIdList(invitationOnUserIdList);
+
         // コミュニティ作成処理を行う
         let isSuccessCreateCommunity = await this.CreateCommunity();
         if (isSuccessCreateCommunity === '0') {
-          // コミュニティ作成完了の通知を行う
+          // コミュニティ作成失敗の通知を行う
           this.ShowNotifyModal('コミュニティ作成結果', 'コミュニティ作成中にエラーが発生しました。<br>エラーが続くようでしたら、お問い合わせ画面より管理者へ連絡してください。');
           return;
         }
-
-        // コミュニティ作成完了の通知を行う
-        this.ShowNotifyModal('コミュニティ作成結果', '正常にコミュニティが作成され、コミュニティメンバー候補者へ招待が送られました。');
                 
         // コミュニティ作成モーダルを表示する
         $('#create-community-modal').modal('hide');
@@ -2586,14 +2609,20 @@ function Init() {
         // コミュニティ情報の初期化を行う
         await this.InitializeCommunityInfo();
 
-        // 招待対象のユーザーIDリストを取得する
-        this.invitationUserIdList = await this.GetInvitationUserIdList();
+        if (this.invitationUserIdList.length > 0) {
 
-        // コミュニティメンバー候補への招待を送る
-        let self = this;
-        this.invitationUserIdList.forEach(function(invitationUserId) {
-          self.InvitationUser(invitationUserId, self.communityInfo.detailsInfo.communityId);
-        });
+          // コミュニティ作成完了の通知を行う
+          this.ShowNotifyModal('コミュニティ作成結果', '正常にコミュニティが作成され、コミュニティメンバー候補者へ招待が送られました。');
+
+          // コミュニティメンバー候補への招待を送る
+          let self = this;
+          this.invitationUserIdList.forEach(function(invitationUserId) {
+            self.InvitationUser(invitationUserId, self.communityInfo.detailsInfo.communityId);
+          });
+        }
+        else {
+          this.ShowNotifyModal('コミュニティへの招待候補者', '正常にコミュニティが作成されましたが、候補となるメンバーが見つかりませんでした。');
+        }
       },
       // コミュニティ作成を行う
       CreateCommunity: function() {
@@ -2771,6 +2800,45 @@ function Init() {
           });
         });
       },
+      // コミュニティからの脱退を確認するモーダルを表示する
+      ConfirmWithdrawalCommunity: function() {
+        // コミュニティ脱退ボタン押下ログ
+        this.OutlogDebug('コミュニティ脱退ボタンが押下されました');
+
+        $('#confirm-withdrawal-community-modal').modal('show');
+      },
+      WithdrawalCommunityProcess: async function() {
+        // コミュニティ参加処理を行う
+        let isSuccessWithdrawalCommunity = await this.WithdrawalCommunity();
+        if (isSuccessWithdrawalCommunity === '0') {
+          // コミュニティ脱退完了の通知を行う
+          this.ShowNotifyModal('コミュニティ脱退結果', 'コミュニティ脱退処理中にエラーが発生しました。<br>エラーが続くようでしたら、お問い合わせ画面より管理者へ連絡してください。');
+          return;
+        }
+
+        // コミュニティ脱退完了の通知を行う
+        this.ShowNotifyModal('コミュニティ脱退結果', '正常にコミュニティからの脱退が完了しました。');
+                
+        // コミュニティ脱退確認モーダルを非表示にする
+        $('#confirm-withdrawal-community-modal').modal('hide');
+
+        // コミュニティ情報の初期化を行う
+        await this.InitializeCommunityInfo();
+      },
+      // コミュニティから脱退する
+      WithdrawalCommunity: function() {
+        let self = this;
+        return new Promise(resolve => {
+          $(function() {
+            $.post('./Api/Community/delete_community_members.php', {userId:self.signInUser.uid}, function(res) {
+              if (res != '0') {
+                resolve('1');
+              }
+              resolve('0');
+            });
+          });
+        });
+      },
       // コミュニティでおしゃべりする
       CommunityTalk: async function() {
         let self = this;
@@ -2786,40 +2854,44 @@ function Init() {
       EventShowCommunityTalk: function() {
         let self = this;
         return new Promise(resolve => {
-          firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId).on('value', function(communityTalkList) {
+          if (this.communityInfo.detailsInfo) {
+           
+            firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId).on('value', function(communityTalkList) {
 
-            self.communityTalkShowFlg = true;
+              self.communityTalkShowFlg = true;
 
-            let communityTalkListVal = communityTalkList.val();
-            if (communityTalkListVal && self.page === self.PAGES.PAGE_COMMUNITY_TALK_ROOM) {
-              self.communityTalkList = [];
-              let communityTalkListCount = Object.keys(communityTalkListVal).length;
-              let communityTalkCounter = 0;
-              Object.keys(communityTalkListVal).forEach(function(communityTalkKey) {
+              let communityTalkListVal = communityTalkList.val();
+              if (communityTalkListVal && self.page === self.PAGES.PAGE_COMMUNITY_TALK_ROOM) {
+                self.communityTalkList = [];
+                let communityTalkListCount = Object.keys(communityTalkListVal).length;
+                let communityTalkCounter = 0;
+                Object.keys(communityTalkListVal).forEach(function(communityTalkKey) {
 
-                communityTalkCounter++;
-                if (communityTalkKey != '0') {
-                  self.communityTalkList.push({
-                    communityTalkKey: communityTalkKey,
-                    message: communityTalkListVal[communityTalkKey].message,
-                    talkDate: communityTalkListVal[communityTalkKey].talkDate,
-                    userId: communityTalkListVal[communityTalkKey].userId,
-                    accountImagePath: './img/AccountImage/' + communityTalkListVal[communityTalkKey].userId + '/account.jpg',
-                  });
-                  // TODO ↑　画像無し時の対応をしたい
-                  if (communityTalkCounter >= communityTalkListCount) {
-                    document.scrollingElement.scrollTop = self.communityTalkScrollTop;
-                    self.communityTalkShowFlg = false;
-                    resolve();
+                  communityTalkCounter++;
+                  if (communityTalkKey != '0') {
+                    self.communityTalkList.push({
+                      communityTalkKey: communityTalkKey,
+                      message: communityTalkListVal[communityTalkKey].message,
+                      talkDate: communityTalkListVal[communityTalkKey].talkDate,
+                      userId: communityTalkListVal[communityTalkKey].userId,
+                      accountImagePath: './img/AccountImage/' + communityTalkListVal[communityTalkKey].userId + '/account.jpg',
+                    });
+                    // TODO ↑　画像無し時の対応をしたい
+                    if (communityTalkCounter >= communityTalkListCount) {
+                      document.scrollingElement.scrollTop = self.communityTalkScrollTop;
+                      self.communityTalkShowFlg = false;
+                      resolve();
+                    }
                   }
-                }
 
-              });
-            } else {
-              self.communityTalkShowFlg = false;
-              resolve();
-            }
-          });
+                });
+              } else {
+                self.communityTalkShowFlg = false;
+                resolve();
+              }
+            });
+
+          }
         });
       },
       // コミュニティのおしゃべり内容を表示する

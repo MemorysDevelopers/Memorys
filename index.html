@@ -540,6 +540,16 @@
           </div>
         </div>
 
+        <div class="row crecive-row" v-if="communityInfo !== '0'"></div>
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col">
+            <button type="button" class="btn btn-danger" v-on:click="ConfirmWithdrawalCommunity();"><i class="fas fa-times-circle"></i>&nbsp;コミュニティ脱退</button>
+          </div>
+        </div>
+
+        <div class="row crecive-row-ll"></div>
+        <div class="row crecive-row-ll"></div>
+
         <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
       </template>
 
@@ -1206,6 +1216,25 @@
           </div>
         </div>
       </div> -->
+
+      <!-- コミュニティ脱退を確認するモーダル -->
+      <div class="modal fade" id="confirm-withdrawal-community-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-withdrawal-community-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="confirm-withdrawal-community-modal-center-title">本当にコミュニティから脱退しますか？</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">脱退対象コミュニティ名：{{(communityInfo && communityInfo.detailsInfo) ? communityInfo.detailsInfo.communityName : ''}}</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" v-on:click="WithdrawalCommunityProcess();">脱退する</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 通知内容を表示するモーダル -->
       <div class="modal fade" id="notify-modal" tabindex="-1" role="dialog" aria-labelledby="notify-modal-center-title" aria-hidden="true">

@@ -37,6 +37,12 @@ body {
 .crecive-row {
   height: 20px;
 }
+.crecive-row-l {
+  height: 40px;
+}
+.crecive-row-ll {
+  height: 60px;
+}
 
 .relative-box {
   position: relative;

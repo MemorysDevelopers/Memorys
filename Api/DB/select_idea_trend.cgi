@@ -46,13 +46,13 @@ def GetIdeaTrendList(userIdList, isSearchInvitationUsers):
   # 対象ユーザーのidea_trend内のアイデア情報を取得する
   cur = con.cursor()
   sql = "select it.user_id, it.idea, it.count from idea_trend it where it.count > 0 " + ideaTrendWhere + " order by it.user_id, it.count desc "
-  OutLog(sql);
+  OutLog(sql)
   cur.execute(sql)
 
   # 取得したアイデア情報をオブジェクト化する
   ideaTrendList = {}
   for row in cur:
-    if ideaTrendList == {} or row[0] in ideaTrendList == False:
+    if row[0] not in list(ideaTrendList.keys()):
       ideaTrendList[row[0]] = []
 
     ideaTrendList[row[0]].append({ UriEncode(str(row[1]),'utf-8') : row[2] })

@@ -5,6 +5,7 @@ require '../Functions/PostFunctions.php';
 
 const INVITATION_RATIO = 0.5;  // [50%]の適合率の場合にコミュニティ招待対象とする
 const MAX_MATCH_IDEA_TREND_JUDGE_COUNT = 10;
+const MAX_MATCH_INVITATION_COUNT = 6;
 
 // 対象ユーザー（複数指定可）のアイデア情報を取得する
 function GetIdeaTrendOfUser($userIdList) {
@@ -87,10 +88,14 @@ function SelectInvitationUser($hostIdeaCountList, $invitationIdeaCountList) {
 
   // アイデアトレンドの一致があるか否か
   $isMatchIdeaTrend = false;
-  $matchIdeaTrendJudgeCount;
+  $matchInvitationCount = 0;
 
   // 招待候補ユーザーのアイデア出現回数を処理する
   foreach ($invitationIdeaCountList as $invitationUserId => $invitationIdeaCountForEachUser) {
+
+    if ($matchInvitationCount >= MAX_MATCH_INVITATION_COUNT) {
+      break;
+    }
 
     // ホストアイデア出現回数との差分
     $totalHostIdeaDifferenceValue = 0;
@@ -118,6 +123,7 @@ function SelectInvitationUser($hostIdeaCountList, $invitationIdeaCountList) {
     if ($analogyRate >= INVITATION_RATIO) {
       // 招待ユーザーIDとして追加する
       array_push($selectInvitationUserIdList, $invitationUserId);
+      $matchInvitationCount++;
     
     // アイデアトレンドの一致によって判定する
     } else {
@@ -128,6 +134,7 @@ function SelectInvitationUser($hostIdeaCountList, $invitationIdeaCountList) {
       if (count(array_diff($hostTopIdeaTrendList, $invitationTopIdeaTrendList)) < MAX_MATCH_IDEA_TREND_JUDGE_COUNT) {
         // 招待ユーザーIDとして追加する
         array_push($selectInvitationUserIdList, $invitationUserId);
+        $matchInvitationCount++;
       }
 
     }

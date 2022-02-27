@@ -36,8 +36,7 @@ def GetMaxCommunityId():
 
   maxCommunityId = '00000000'
   for row in cur:
-    if type(row[0]) is str:
-      maxCommunityId = row[0]
+    maxCommunityId = row[0]
   
   return maxCommunityId
 
