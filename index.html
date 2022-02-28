@@ -160,7 +160,7 @@
             <div class="col-6">
             </div>
             <div class="col-6 text-right">
-              <button type="button" id="community-button" class="btn btn-outline-success shadow-sm" v-on:click="MoveCommunityPage();"><i class="fas fa-user-friends"></i>&nbsp;コミュニティ</button>
+              <button type="button" id="community-button" class="btn btn-outline-warning shadow-sm" v-on:click="MoveCommunityPage();"><i class="fas fa-user-friends"></i>&nbsp;コミュニティβ版</button>
             </div>
           </div>
           <div class="row crecive-row"></div>
@@ -470,6 +470,7 @@
       <template v-else-if="page === PAGES.PAGE_COMMUNITY">
         <div class="alert page-list-head relative-box">
           <div>アイデア・コミュニティ</div>
+          <div class="font-strong">試用版のため、不具合が発生する場合があります。クオリティを徐々に上げていくのでよろしくお願いします。</div>
         </div>
 
         <div class="row crecive-box" v-if="communityInfo === '0' && invitationCommunityId">
@@ -480,7 +481,7 @@
 
         <div class="row crecive-box" v-if="communityInfo === '0'">
           <div class="col">
-            <button type="button" class="btn btn-success" v-on:click="ShowCreateCommunityWindow();"><i class="fas fa-user-friends"></i>&nbsp;コミュニティ作成</button>
+            <button type="button" class="btn btn-success" v-on:click="ShowCreateCommunityWindow(COMMUNITY_CREATE_TYPE.CREATE);"><i class="fas fa-user-friends"></i>&nbsp;コミュニティ作成</button>
           </div>
         </div>
         
@@ -545,7 +546,7 @@
         <div class="row crecive-row"></div>
         <div class="row crecive-box" v-if="communityInfo !== '0' && signInUser && signInUser.uid === communityInfo.detailsInfo.hostId">
           <div class="col">
-            <button type="button" class="btn btn-success" v-on:click="ShowCreateCommunityWindow();"><i class="fas fa-pen"></i>&nbsp;コミュニティ編集</button>
+            <button type="button" class="btn btn-success" v-on:click="ShowCreateCommunityWindow(COMMUNITY_CREATE_TYPE.UPDATE);"><i class="fas fa-pen"></i>&nbsp;コミュニティ編集</button>
           </div>
         </div>
 
@@ -909,7 +910,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -1029,7 +1030,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">受信した通知</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">受信した通知</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -1048,7 +1049,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">{{(isCreateCommunityCofirm) ? 'コミュニティ情報入力確認' : 'コミュニティ情報入力'}}</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">{{(isCreateCommunityCofirm) ? 'コミュニティ情報入力確認' : 'コミュニティ情報入力'}}</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -1162,7 +1163,7 @@
                 </div>
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-success" v-on:click="CreateCommunityProcess();">作成</button>
+                <button type="button" class="btn btn-success" v-on:click=" if (communityCreateType === COMMUNITY_CREATE_TYPE.CREATE) { CreateCommunityProcess(); } else { EditCommunityProcess(); }">{{ (communityCreateType === COMMUNITY_CREATE_TYPE.CREATE) ? '作成' : '編集' }}</button>
                 <button type="button" class="btn btn-outline-success" v-on:click="ReturnToInputCommunity();">入力内容修正</button>
               </div>
             </template>
@@ -1176,7 +1177,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">招待コミュニティ情報確認</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">招待コミュニティ情報確認</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -1223,7 +1224,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">コミュニティへの参加</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">コミュニティへの参加</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -1254,7 +1255,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title">トークルーム♪</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">トークルーム♪</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -1297,7 +1298,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <img class="headimage" src="img/memoryslogo_skeleton.png">&nbsp;<h5 class="modal-title" id="confirm-withdrawal-community-modal-center-title">本当にコミュニティから脱退しますか？</h5>
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-withdrawal-community-modal-center-title">本当にコミュニティから脱退しますか？</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>

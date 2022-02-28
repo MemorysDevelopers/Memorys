@@ -138,6 +138,13 @@ function Init() {
       communityTalkScrollTop: 0,
       communityTalkShowFlg: false,
 
+      // コミュニティ作成処理分類
+      communityCreateType: '',
+      COMMUNITY_CREATE_TYPE: {
+        CREATE: '0',
+        UPDATE: '1',
+      },
+
       // シェア通知フラグ
       isShareNotify: false,
       
@@ -743,17 +750,14 @@ function Init() {
         this.isSearchAiLoding = false;
         this.listAiSearchText = '';
 
-        $('#load-search-' + this.loadSearchIcon).css('display', 'none');
+        this.page = this.PAGES.PAGE_LIST;
 
-        if (searchType == this.SEARCH_TYPES.ROBOT) {
-          this.isSearchAiLoding = false;
-        
-        } else if (searchType == this.SEARCH_TYPES.SINGLE_WORD) {
-          this.isSearchSingleWordLoding = false;
-        
+        // 管理者へ思考メモリストにアクセスされた旨を通知
+        if (DEVELOP_MODE === false) {
+          $(function() {
+            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': '思考メモリストにアクセスがありました。'});
+          });
         }
-
-        this.loadSearchIcon = '';
       },
       // シェア思考リストを取得
       GetMemoryShareList: async function() {
@@ -2635,7 +2639,7 @@ function Init() {
         });
       },
       // コミュニティの作成を行うモーダル表示
-      ShowCreateCommunityWindow: function() {
+      ShowCreateCommunityWindow: function(createType) {
 
         // コミュニティ作成画面表示ボタン押下ログ
         this.OutlogDebug('コミュニティ作成画面表示ボタンが押下されました');
@@ -2644,6 +2648,9 @@ function Init() {
         if (this.communityMemberName === '' && this.signInUser && this.signInUser.displayName) {
           this.communityMemberName = this.signInUser.displayName;
         }
+
+        // コミュニティ作成処理区分を設定する
+        this.communityCreateType = createType;
 
         // コミュニティ作成モーダルを表示する
         $('#create-community-modal').modal('show');
@@ -2733,8 +2740,27 @@ function Init() {
           });
         }
         else {
-          this.ShowNotifyModal('コミュニティへの招待候補者', '正常にコミュニティが作成されましたが、候補となるメンバーが見つかりませんでした。');
+          this.ShowNotifyModal('コミュニティ作成結果', '正常にコミュニティが作成されましたが、候補となるメンバーが見つかりませんでした。');
         }
+      },
+      // コミュニティ更新に伴う一連の処理を行う
+      EditCommunityProcess: async function() {
+        // コミュニティ作成処理を行う
+        let isSuccessCreateCommunity = await this.CreateCommunity();
+        if (isSuccessCreateCommunity === '0') {
+          // コミュニティ編集失敗の通知を行う
+          this.ShowNotifyModal('コミュニティ編集結果', 'コミュニティ情報の編集中にエラーが発生しました。<br>エラーが続くようでしたら、お問い合わせ画面より管理者へ連絡してください。');
+          return;
+        }
+                
+        // コミュニティ作成モーダルを表示する
+        $('#create-community-modal').modal('hide');
+
+        // コミュニティ情報の初期化を行う
+        await this.InitializeCommunityInfo();
+
+        // コミュニティ作成失敗の通知を行う
+        this.ShowNotifyModal('コミュニティ編集結果', 'コミュニティ情報の編集をしました。');
       },
       // コミュニティ作成を行う
       CreateCommunity: function() {

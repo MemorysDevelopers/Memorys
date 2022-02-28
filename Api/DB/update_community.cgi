@@ -79,9 +79,15 @@ def InsertCommunity(updateCommunityInfo):
   sql = ''
 
   try:
-    # 新たなコミュニティIDを生成する
-    maxCommunityId = GetMaxCommunityId();
-    registCommunityId = str(int(maxCommunityId) + 1).zfill(8);
+    if len(updateCommunityInfo['communityId']) == 0:
+      # 新たなコミュニティIDを生成する
+      maxCommunityId = GetMaxCommunityId()
+      try:
+        registCommunityId = str(int(maxCommunityId) + 1).zfill(8)
+      except Exception as e:
+        registCommunityId = '00000001'
+    else:
+      registCommunityId = updateCommunityInfo['communityId']
 
     cur = con.cursor()
     sql = "insert into community_members(member_id, community_id, member_name) values('" + updateCommunityInfo['userId'] + "', '" + registCommunityId + "', ?)"
@@ -108,7 +114,7 @@ def InsertCommunity(updateCommunityInfo):
     return registCommunityId
 
   except Exception as e:
-    if 'UNIQUE constraint failed' in ('{0}').format(e):
+    if 'UNIQUE constraint failed' in ('{0}').format(e) or 'is not unique' in ('{0}').format(e):
       updateCommunityId = UpdateCommunity(updateCommunityInfo)
       return updateCommunityId
     else:
