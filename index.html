@@ -40,6 +40,7 @@
   <body onLoad="Init();">
     <div id="memorys" class="container-fluid" v-cloak>
 
+      <!-- コミュニティトークルームのコントロールエリア -->
       <div v-if="page === PAGES.PAGE_COMMUNITY_TALK_ROOM && communityInfo !== '0'" id="community-talk-input-box" :style="{height: communityTalkInputHeight + 'px'}">
         <div class="container-fluid">
           <div class="row" style="margin-top: 30px;">
@@ -67,10 +68,6 @@
       
       <!-- ユーザー通知アイコン -->
       <div v-if="notifyToUser" id="notify-to-user-show" class="notify-animation" v-on:click="ShowNotifyToUserModal();"><i class="fas fa-bell"></i></div>
-
-      <!-- ユーザー通知アイコン -->
-      <div v-if="notifyToUser" id="notify-to-user-show" class="notify-animation" v-on:click="ShowNotifyToUserModal();"><i class="fas fa-bell"></i></div>
-
 
       <!-- ************************************** -->
       <!--                 各画面                  -->
@@ -219,8 +216,7 @@
             <button type="button" id="single-word-search-button" class="btn btn-outline-success shadow-sm" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
           </div>
           <div class="icon-color top-right-box-list h4">
-            <span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;
-            <span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_TASKS);"><i class="fas fa-tasks"></i></span>
+            <span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;&nbsp;<span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_TASKS);"><i class="fas fa-tasks"></i></span>
           </div>
         </div>
         <div class="container-fluid">

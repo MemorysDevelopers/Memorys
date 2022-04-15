@@ -153,11 +153,6 @@ function Init() {
       notifyToUserModalContent: '',
       USER_NOTIFY_DELIMITER: '|',
 
-      // ユーザー通知関連
-      notifyToUser: '',
-      notifyToUserModalContent: '',
-      USER_NOTIFY_DELIMITER: '|',
-
     },
     // インスタンス作成時に呼び出される
     created: async function() {
@@ -2319,7 +2314,7 @@ function Init() {
           let notifyToUserList = notifyToUserVal.split(self.USER_NOTIFY_DELIMITER);
           notifyToUserList.splice(0, 1);
           
-          firebase.database().ref('NotifyToUser/' + self.signInUser.uid).set(notifyToUserList.join('|'));
+          firebase.database().ref('NotifyToUser/' + self.signInUser.uid).set(self.$options.filters.TrimEndString(notifyToUserList.join('|'), '|'));
         });
       },
       ShowNotifyToUserModal: function() {
@@ -2338,6 +2333,20 @@ function Init() {
       DeleteNotifyToUserModal: function() {
         this.ClearNotifyToUser();
         $('#notify-to-user-modal').modal('hide');
+      },
+      InsertNotifyToUser: function(userId, insertNotifyContent) {
+        let self = this;
+        firebase.database().ref('NotifyToUser/' + userId).once('value', function(notifyContent) {
+          let notifyToUserVal = notifyContent.val();
+          let notifyToUserList = notifyToUserVal.split(self.USER_NOTIFY_DELIMITER);
+          
+          // 既に同一の通知内容が存在する場合は、何もしない
+          if (notifyToUserList.indexOf(insertNotifyContent) === -1) {
+            notifyToUserList.splice(0, 0, insertNotifyContent);
+          }
+          
+          firebase.database().ref('NotifyToUser/' + userId).set(self.$options.filters.TrimEndString(notifyToUserList.join('|'), '|'));
+        });
       },
       // アイデア画像の読み込みを行うモーダル表示
       ShowVisionReadImageWindow: function() {
@@ -2980,13 +2989,27 @@ function Init() {
       // コミュニティでおしゃべりする
       CommunityTalk: async function() {
         let self = this;
-        await firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId + '/' + this.GetNowTimestamp()).set({
-          message: self.communityTalkInput,
-          talkDate: self.GetNowDatetime(self.DATE_FORMAT.DATE_TIME),
-          userId: self.signInUser.uid,
-        });
+        if (self.communityTalkInput) {
+          await firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId + '/' + this.GetNowTimestamp()).set({
+            message: self.communityTalkInput,
+            talkDate: self.GetNowDatetime(self.DATE_FORMAT.DATE_TIME),
+            userId: self.signInUser.uid,
+          });
+
+          // コミュニティ内のユーザーへ通知を行う
+          self.CommunityTalkNotifyToCommunityMembers();
+        }
         this.communityTalkInput = '';
         this.ShowCommunityTalk();
+      },
+      CommunityTalkNotifyToCommunityMembers: function() {
+        let alreadyNotifyUserList = [];
+        for (member of this.communityInfo.memberInfo) {
+          if (alreadyNotifyUserList.indexOf(member.memberId) === -1 && member.memberId !== this.signInUser.uid) {
+            alreadyNotifyUserList.push(member.memberId);
+            this.InsertNotifyToUser(member.memberId, 'コミュニティへの新着トークがあります♪');
+          }
+        }
       },
       // コミュニティのおしゃべり内容を表示する
       EventShowCommunityTalk: function() {
@@ -3150,6 +3173,12 @@ function Init() {
         }
         
         return loginUserName;
+      },
+      TrimEndString: function(text, deleteString) {
+        if (text.lastIndexOf(deleteString) === text.length - 1) {
+          text = text.substr(0, text.length - 1);
+        }
+        return text;
       },
     },
   });
