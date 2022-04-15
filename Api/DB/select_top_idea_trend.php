@@ -6,7 +6,13 @@ require '../Functions/PostFunctions.php';
 try {
 
   // POST用のクエリパラメータを作成する
-  $paramTrendQuery = http_build_query(['param' => '{"userId":"' . $_POST['userId'] . '"}']);
+  $queryUserId = '';
+  foreach ($_POST['userId'] as $receiveUserId) {
+    // where in 句用の条件を作成する
+    $queryUserId .= ($queryUserId == '') ? '' : ',';
+    $queryUserId .= $receiveUserId;
+  }
+  $paramTrendQuery = http_build_query(['param' => '{"userId":"' . $queryUserId . '","isSearchInvitationUsers":"0"}']);
 
   $functions = new PostFunctions();
   $response = $functions->ExecutePost($paramTrendQuery, MAIN_HOST . DB_API_SELECT_IDEA_TREND);
@@ -19,22 +25,25 @@ try {
 
     $selectTopTrends = '{';
     $loopCount = 0;
-    $responseList = explode(', ', rtrim(ltrim(trim($response), '{'), '}'));
+    //$responseList = explode(', ', rtrim(ltrim(trim($response), '{'), '}'));
+    $responseList = json_decode($response, true);
 
-    foreach ($responseList as $trendInfo) {
-      $trend = trim(explode(': ', $trendInfo)[0], "'");
-      $trendCount = explode(': ', $trendInfo)[1];
+    foreach ($responseList as $responseUserId => $trendInfoList) {
+      foreach ($trendInfoList as $index => $trendInfo) {
+        $trend = key($trendInfo);
+        $trendCount = $trendInfo[key($trendInfo)];
 
-      $decodeTrend = urldecode($trend);
+        $decodeTrend = urldecode($trend);
 
-      // ひらがな以外が含まれるトレンドを対象とする
-      if (preg_match('/[^あ-ん0-9\|□：\"\-]/', $decodeTrend) != 0) {
-        $selectTopTrends .= '"' . urlencode($decodeTrend) . '":"' . $trendCount . '",';
-        $loopCount++;
-      }
+        // ひらがな以外が含まれるトレンドを対象とする
+        if (preg_match('/[^あ-ん0-9\|□：\"\-]/', $decodeTrend) != 0) {
+          $selectTopTrends .= '"' . urlencode($decodeTrend) . '":"' . $trendCount . '",';
+          $loopCount++;
+        }
 
-      if ($loopCount >= $selectCount) {
-        break;
+        if ($loopCount >= $selectCount) {
+          break;
+        }
       }
     }
     $selectTopTrends = rtrim($selectTopTrends, ',');

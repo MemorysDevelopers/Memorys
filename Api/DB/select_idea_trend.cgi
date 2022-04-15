@@ -28,18 +28,34 @@ def Encode(text, encode):
 def Decode(text, encode):
   return text.decode(encode)
 
+def CreateWhereIn(userIdList):
+  userIdWhereIn = ''
+  for userId in userIdList:
+    userIdWhereIn += '' if userIdWhereIn == '' else ','
+    userIdWhereIn += "'" + userId + "'"
+  
+  return userIdWhereIn
+
 # 指定ユーザーの記録しているアイデア情報を取得する
-def GetIdeaTrendList(userId):
+def GetIdeaTrendList(userIdList, isSearchInvitationUsers):
+  # ユーザーIDが指定されなかった場合は、全てのユーザーのアイデア情報を取得する
+  # 複数のユーザーIDが指定された場合は、指定ユーザー毎のアイデア情報を取得する
+  communityMembersExists = " and not exists(select cm.member_id from community_members cm where cm.member_id = it.user_id) " if isSearchInvitationUsers == '1' else ''
+  ideaTrendWhere = " and it.user_id in (" + CreateWhereIn(userIdList.split(',')) + ")" + communityMembersExists if len(userIdList) > 0 else ''
+
   # 対象ユーザーのidea_trend内のアイデア情報を取得する
   cur = con.cursor()
-  sql = "select idea, count from idea_trend where user_id = '" + userId + "'" + " order by count desc "
+  sql = "select it.user_id, it.idea, it.count from idea_trend it where it.count > 0 " + ideaTrendWhere + " order by it.user_id, it.count desc "
   OutLog(sql)
   cur.execute(sql)
 
   # 取得したアイデア情報をオブジェクト化する
   ideaTrendList = {}
   for row in cur:
-    ideaTrendList[UriEncode(str(row[0]),'utf-8')] = row[1]
+    if row[0] not in list(ideaTrendList.keys()):
+      ideaTrendList[row[0]] = []
+
+    ideaTrendList[row[0]].append({ UriEncode(str(row[1]),'utf-8') : row[2] })
   
   return ideaTrendList
 
@@ -68,10 +84,11 @@ try:
   paramJson = json.loads(param)
 
   userId = paramJson['userId']
+  isSearchInvitationUsers = paramJson['isSearchInvitationUsers']
 
   # 更新前に登録されているアイデア情報を取得する
-  ideaTrendList = GetIdeaTrendList(userId)
-  responseApi = ideaTrendList if len(ideaTrendList) > 0 else '0'
+  ideaTrendList = GetIdeaTrendList(userId, isSearchInvitationUsers)
+  responseApi = json.dumps(ideaTrendList) if len(ideaTrendList) > 0 else '0'
 
 except Exception as e:
   OutLog('Error : {0} '.format(e) + traceback.format_exc())

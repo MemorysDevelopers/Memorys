@@ -40,6 +40,22 @@
   <body onLoad="Init();">
     <div id="memorys" class="container-fluid" v-cloak>
 
+      <div v-if="page === PAGES.PAGE_COMMUNITY_TALK_ROOM && communityInfo !== '0'" id="community-talk-input-box" :style="{height: communityTalkInputHeight + 'px'}">
+        <div class="container-fluid">
+          <div class="row" style="margin-top: 30px;">
+            <div class="col">
+              <textarea id="community-talk-input" class="form-control" v-model="communityTalkInput" :style="{height: (memoryInputHeight * 0.20) + 'px'}"></textarea>
+            </div>
+          </div>
+          <div class="row crecive-box">
+            <div id="community-talk-button-box" class="col relative-box">
+              <button type="button" class="btn btn-outline-success left-box" v-on:click="MoveCommunityPage();"><i class="fas fa-backspace"></i>&nbsp;閉じる</button>
+              <button type="button" class="btn btn-success right-box" v-on:click="CommunityTalk();"><i class="fas fa-comment"></i>&nbsp;しゃべる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- ローディングウィンドウ -->
       <div id="loading-window" class="center-box-fixed" v-if="isLoading">
         <div class="center-box">
@@ -51,6 +67,14 @@
       
       <!-- ユーザー通知アイコン -->
       <div v-if="notifyToUser" id="notify-to-user-show" class="notify-animation" v-on:click="ShowNotifyToUserModal();"><i class="fas fa-bell"></i></div>
+
+      <!-- ユーザー通知アイコン -->
+      <div v-if="notifyToUser" id="notify-to-user-show" class="notify-animation" v-on:click="ShowNotifyToUserModal();"><i class="fas fa-bell"></i></div>
+
+
+      <!-- ************************************** -->
+      <!--                 各画面                  -->
+      <!-- ************************************** -->
 
       <!-- ログイン画面 -->
       <template v-if="page === PAGES.PAGE_LOGIN">
@@ -65,7 +89,7 @@
           <button type="button" id="app-explanation-button-in-login" class="btn btn-outline-success shadow-sm" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
         </div>
         <div id="sign-in-box" class="crecive-box-ll">
-          <div id="error-message-box" class="form-group">{{loginErrorMessage}}</div>
+          <div class="form-group error-message-box">{{loginErrorMessage}}</div>
           <div class="form-group">
             <input type="email" class="form-control shadow-sm" id="sign-in-address" placeholder="メールアドレス" v-model="inputSignInUserAddress">
           </div>
@@ -129,6 +153,14 @@
             <div id="analysis-by-datetime-box" class="col relative-box">
               <p class="shadow-sm"></p>
               <span id="analysis-by-datetime-regist-date" class="memory-list-regist-date"></span>
+            </div>
+          </div>
+          <div class="row crecive-row"></div>
+          <div class="row">
+            <div class="col-6">
+            </div>
+            <div class="col-6 text-right">
+              <button type="button" id="community-button" class="btn btn-outline-warning shadow-sm" v-on:click="MoveCommunityPage();"><i class="fas fa-user-friends"></i>&nbsp;コミュニティβ版</button>
             </div>
           </div>
           <div class="row crecive-row"></div>
@@ -208,7 +240,6 @@
         </div>
         <span id="load-search-robot-around"><i id="load-search-robot" class="fas fa-robot"></i></span>
         <span id="load-search-lens-around"><i id="load-search-lens" class="fas fa-search"></i></span>
-        
         <img class="page-up-button bottom-right-box-fixed" src="img/memoryslogo_transparent.png" v-on:click="JumpPageTop();">
       </template>
 
@@ -327,12 +358,12 @@
         <div class="row crecive-row"></div>
         <hr color="#a9a9a9">
 
-        <!-- <div class="custom-control custom-switch">
+        <div class="custom-control custom-switch">
           <input type="checkbox" class="custom-control-input" id="invitationable-switch" v-model="isInvitationable">
           <label class="custom-control-label" for="invitationable-switch">コミュニティ招待を許可する</label>
         </div>
         <div class="row crecive-row"></div>
-        <hr color="#a9a9a9"> -->
+        <hr color="#a9a9a9">
 
         <!-- <div class="row crecive-box">
           <div class="col">コロナ感染情報通知登録</div>
@@ -435,7 +466,125 @@
         <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
       </template>
 
+      <!-- コミュニティ画面 -->
+      <template v-else-if="page === PAGES.PAGE_COMMUNITY">
+        <div class="alert page-list-head relative-box">
+          <div>アイデア・コミュニティ</div>
+          <div class="font-strong">試用版のため、不具合が発生する場合があります。クオリティを徐々に上げていくのでよろしくお願いします。</div>
+        </div>
 
+        <div class="row crecive-box" v-if="communityInfo === '0' && invitationCommunityId">
+          <div class="col">
+            <button type="button" class="btn btn-success" v-on:click="ShowInvitationCommunityWindow();"><i class="fas fa-gift"></i>&nbsp;招待されているコミュニティ詳細</button>
+          </div>
+        </div>
+
+        <div class="row crecive-box" v-if="communityInfo === '0'">
+          <div class="col">
+            <button type="button" class="btn btn-success" v-on:click="ShowCreateCommunityWindow(COMMUNITY_CREATE_TYPE.CREATE);"><i class="fas fa-user-friends"></i>&nbsp;コミュニティ作成</button>
+          </div>
+        </div>
+        
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col-5">
+            <img id="show-community-image" :src="'img/CommunityImage/' + communityInfo.detailsInfo.communityId + '/' + communityInfo.detailsInfo.imageName">
+          </div>
+          <div class="col-7">
+            <div><span class="h5">{{communityInfo.detailsInfo.communityName}}</span></div>
+            <div class="crecive-box"><p v-html="$options.filters.ReplaceNewLine(communityInfo.detailsInfo.description)"></p></div>
+          </div>
+        </div>
+
+        <div class="row crecive-row"></div>
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col">みんなでおしゃべりしよう♪</div>
+        </div>
+
+        <!-- <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col relative-box">
+            <span class="h1 community-talk-around icon-color"><i id="community-talk-image" class="fas fa-comments"></i></span>
+            <div id="community-talk-box" class="border border-success" :style="{height: (memoryInputHeight * 0.80) + 'px'}">
+              <div class="container-fluid">
+                <div class="row community-talk-list-row" v-for="communityTalkInfo in communityTalkList">
+                  <div class="col-3" v-if="communityTalkInfo.userId === signInUser.uid"></div>
+                  <div class="col-9 community-talk-one-box relative-box">
+                    <span class="community-account-image-around"><img class="community-account-image" :src="communityTalkInfo.accountImagePath"></span>
+                    <p :class="'memory-list-content-' + communityTalkInfo.communityTalkKey" v-html="$options.filters.ReplaceNewLine(communityTalkInfo.message)"></p>
+                    <span class="memory-list-regist-date">{{communityTalkInfo.talkDate | PreviousDays}}&nbsp;{{communityTalkInfo.talkDate | RegistDateFormatToList}}</span>
+                  </div>
+                  <div class="col-3" v-if="communityTalkInfo.userId !== signInUser.uid"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col">
+            <textarea id="community-talk-input" class="form-control" v-model="communityTalkInput" :style="{height: (memoryInputHeight * 0.15) + 'px'}"></textarea>
+          </div>
+        </div> -->
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div id="community-talk-button-box" class="col relative-box">
+            <button type="button" class="btn btn-success" v-on:click="MoveCommunityTalkPage();"><i class="fas fa-comment"></i>&nbsp;トークルームを開く</button>
+          </div>
+        </div>
+
+        <!-- <div class="row crecive-row"></div>
+        <div class="row crecive-box" v-if="communityInfo != '0'">
+          <div class="col">ブレインストーミング - アイデアを作ろう</div>
+        </div> -->
+
+        <div class="row crecive-row"></div>
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col">コミュニティメンバー <span class="badge badge-success">{{(communityInfo.memberInfo) ? communityInfo.memberInfo.length : '0'}}</span></div>
+        </div>
+        <div class="row crecive-box" v-for="member in communityInfo.memberInfo" v-if="communityInfo != '0'">
+          <div class="col-3"><img class="community-member" :src="'img/AccountImage/' + member.memberId + '/account.jpg'" alt="メンバー画像"></div>
+          <div class="col-9"><span class="icon-color icon-space"><i class="fas fa-user-shield" v-if="member.memberId === communityInfo.detailsInfo.hostId"></i></span>{{member.memberName}}</div>
+        </div>
+
+        <div class="row crecive-row"></div>
+        <div class="row crecive-box" v-if="communityInfo !== '0' && signInUser && signInUser.uid === communityInfo.detailsInfo.hostId">
+          <div class="col">
+            <button type="button" class="btn btn-success" v-on:click="ShowCreateCommunityWindow(COMMUNITY_CREATE_TYPE.UPDATE);"><i class="fas fa-pen"></i>&nbsp;コミュニティ編集</button>
+          </div>
+        </div>
+
+        <div class="row crecive-row" v-if="communityInfo !== '0'"></div>
+        <div class="row crecive-box" v-if="communityInfo !== '0'">
+          <div class="col">
+            <button type="button" class="btn btn-danger" v-on:click="ConfirmWithdrawalCommunity();"><i class="fas fa-times-circle"></i>&nbsp;コミュニティ脱退</button>
+          </div>
+        </div>
+
+        <div class="row crecive-row-ll"></div>
+        <div class="row crecive-row-ll"></div>
+
+        <button type="button" class="btn btn-outline-success memory-link-top" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
+      </template>
+
+      <!-- コミュニティトークルーム画面 -->
+      <template v-else-if="page === PAGES.PAGE_COMMUNITY_TALK_ROOM">
+        <div id="community-talk-room-header" class="alert page-list-head relative-box" :style="{width: memoryWidth + 'px'}">
+          <div>コミュニティ・トークルーム</div>
+        </div>
+
+        <div class="row crecive-row crecive-box-ll"></div>
+        <div class="row community-talk-list-row" v-for="communityTalkInfo in sortCommunityTalkList">
+          <div class="col-3" v-if="communityTalkInfo.userId === signInUser.uid"></div>
+          <div class="col-9 community-talk-one-box relative-box">
+            <span class="community-account-image-around"><img class="community-account-image" :src="communityTalkInfo.accountImagePath"></span>
+            <p :class="'memory-list-content-' + communityTalkInfo.communityTalkKey" v-html="$options.filters.ReplaceNewLine(communityTalkInfo.message)"></p>
+            <span class="memory-list-regist-date">{{communityTalkInfo.talkDate | PreviousDays}}&nbsp;{{communityTalkInfo.talkDate | RegistDateFormatToList}}</span>
+          </div>
+          <div class="col-3" v-if="communityTalkInfo.userId !== signInUser.uid"></div>
+        </div>
+        <div :style="{height: communityTalkInputHeight + 'px'}"></div>
+      </template>
+
+      <!-- ************************************** -->
+      <!--                 モーダル                -->
+      <!-- ************************************** -->
 
       <!-- AI解析した過去の思考メモを表示するモーダル -->
       <div class="modal fade" id="memorys-ai-modal" tabindex="-1" role="dialog" aria-labelledby="memorys-ai-modal-center-title" aria-hidden="true">
@@ -756,6 +905,31 @@
         </div>
       </div>
 
+      <!-- 単語検索キーワードを入力するモーダル -->
+      <div class="modal fade" id="single-word-search-modal" tabindex="-1" role="dialog" aria-labelledby="single-word-search-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">単語検索する内容を入力してください</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col">
+                  <input type="text" id="single-word-search-text" class="form-control" v-model="singleWordSearchText"></input>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="SearchSingleWoreFromMemoryList();">検索</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- アーカイブを確認するモーダル -->
       <div class="modal fade" id="confirm-archive-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-archive-modal-center-title" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -846,6 +1020,293 @@
             <div class="modal-footer shadow-sm">
               <button type="button" class="btn btn-success shadow-sm" v-on:click="EditTask(confirmTaskEditInfo, taskEditContent);">更新</button>
               <button type="button" class="btn btn-outline-success shadow-sm" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ユーザー通知内容を表示するモーダル -->
+      <div class="modal fade" id="notify-to-user-modal" tabindex="-1" role="dialog" aria-labelledby="notify-to-user-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">受信した通知</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" v-html="$options.filters.ReplaceNewLine(notifyToUserModalContent)"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="DeleteNotifyToUserModal();">この通知はもう表示しない</button>
+              <button type="button" class="btn btn-outline-success" v-on:click="CancelNotifyToUserModal();">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- コミュニティ作成するモーダル -->
+      <div class="modal fade" id="create-community-modal" tabindex="-1" role="dialog" aria-labelledby="create-community-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">{{(isCreateCommunityCofirm) ? 'コミュニティ情報入力確認' : 'コミュニティ情報入力'}}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <template v-if="isCreateCommunityCofirm === false">
+              <div class="modal-body">
+                <div class="container-fluid">
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティイメージ</div>
+                  </div>
+                  <div class="form-group error-message-box">{{errorCommunityImage}}</div>
+                  <div class="row crecive-box">
+                    <div id="community-camera-box" class="col icon-color">
+                      <span id="community-image-around"><img id="community-image" :src="communityImage"></span>
+                      <span class="h1" v-on:click="SelectCommunityImage();"><i class="fas fa-camera"></i></span>
+                    </div>
+                  </div>
+                  <div class="row crecive-row"></div>
+
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティ名</div>
+                  </div>
+                  <div class="form-group error-message-box">{{errorCommunityName}}</div>
+                  <div class="row crecive-box">
+                    <div class="col">
+                      <div class="form-group">
+                        <input id="input-community-name" type="text" class="form-control" v-model="communityName">
+                      </div>
+                    </div>
+                  </div>
+          
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティ説明</div>
+                  </div>
+                  <div class="form-group error-message-box">{{errorCommunityDescription}}</div>
+                  <div class="row crecive-box">
+                    <div class="col">
+                      <div class="form-group">
+                        <textarea id="input-community-description" class="form-control" rows="5" v-model="communityDescription"></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティ内での表示名</div>
+                  </div>
+                  <div class="form-group error-message-box">{{errorCommunityMemberName}}</div>
+                  <div class="row crecive-box">
+                    <div class="col">
+                      <div class="form-group">
+                        <input id="input-member-name" type="text" class="form-control" v-model="communityMemberName">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row crecive-row"></div>
+
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success" v-on:click="ConfirmRegistCommunity();">確認</button>
+                <button type="button" class="btn btn-outline-success" v-on:click="CloseToInputCommunity();">キャンセル</button>
+              </div>
+            </template>
+            <template v-else>
+              <div class="modal-body">
+                <div class="container-fluid">
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティイメージ</div>
+                  </div>
+                  <div class="row crecive-box">
+                    <div id="confirm-community-camera-box" class="col icon-color">
+                      <span id="confirm-community-image-around"><img id="confirm-community-image" :src="communityImage"></span>
+                    </div>
+                  </div>
+                  <div class="row crecive-row"></div>
+
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティ名</div>
+                  </div>
+                  <div class="row crecive-box">
+                    <div class="col">
+                      <div class="form-group">
+                        <input id="confirm-input-community-name" type="text" class="form-control" v-model="communityName" readonly>
+                      </div>
+                    </div>
+                  </div>
+          
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティ説明</div>
+                  </div>
+                  <div class="row crecive-box">
+                    <div class="col">
+                      <div class="form-group">
+                        <textarea id="input-community-description" class="form-control" rows="5" v-model="communityDescription" readonly></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row crecive-box">
+                    <div class="col">コミュニティ内での表示名</div>
+                  </div>
+                  <div class="row crecive-box">
+                    <div class="col">
+                      <div class="form-group">
+                        <input id="input-member-name" type="text" class="form-control" v-model="communityMemberName" readonly>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row crecive-row"></div>
+
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-success" v-on:click=" if (communityCreateType === COMMUNITY_CREATE_TYPE.CREATE) { CreateCommunityProcess(); } else { EditCommunityProcess(); }">{{ (communityCreateType === COMMUNITY_CREATE_TYPE.CREATE) ? '作成' : '編集' }}</button>
+                <button type="button" class="btn btn-outline-success" v-on:click="ReturnToInputCommunity();">入力内容修正</button>
+              </div>
+            </template>
+            <input type="file" id="community-image-select">
+          </div>
+        </div>
+      </div>
+
+      <!-- 招待コミュニティ参照モーダル -->
+      <div class="modal fade" id="invitation-community-modal" tabindex="-1" role="dialog" aria-labelledby="invitation-community-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">招待コミュニティ情報確認</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <template v-for="invitationCommunity in invitationCommunityList">
+                <div class="row crecive-box">
+                  <div class="col-5">
+                    <img id="show-community-image" :src="'img/CommunityImage/' + invitationCommunity.detailsInfo.communityId + '/' + invitationCommunity.detailsInfo.imageName">
+                  </div>
+                  <div class="col-7">
+                    <div><span class="h5">{{invitationCommunity.detailsInfo.communityName}}</span></div>
+                    <div class="crecive-box"><p v-html="$options.filters.ReplaceNewLine(invitationCommunity.detailsInfo.description)"></p></div>
+                  </div>
+                </div>
+        
+                <div class="row crecive-row"></div>
+                <div class="row crecive-box">
+                  <div class="col">コミュニティメンバー <span class="badge badge-success">{{(invitationCommunity.memberInfo) ? invitationCommunity.memberInfo.length : '0'}}</span></div>
+                </div>
+                <div class="row crecive-box" v-for="member in invitationCommunity.memberInfo">
+                  <div class="col-3"><img class="community-member" :src="'img/AccountImage/' + member.memberId + '/account.jpg'" alt="メンバー画像"></div>
+                  <div class="col-9"><span class="icon-color icon-space"><i class="fas fa-user-shield" v-if="member.memberId === invitationCommunity.detailsInfo.hostId"></i></span>{{member.memberName}}</div>
+                </div>
+
+                <div class="row crecive-row"></div>
+                <div class="row crecive-box">
+                  <div class="col">
+                    <button type="button" class="btn btn-success" v-on:click="ConfirmJoiningCommunity(invitationCommunity.detailsInfo.communityId);">参加する</button>
+                  </div>
+                </div>
+                <hr color="#a9a9a9">
+              </template>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- コミュニティ参加モーダル -->
+      <div class="modal fade" id="joining-community-modal" tabindex="-1" role="dialog" aria-labelledby="joining-community-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">コミュニティへの参加</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row crecive-box">
+                <div class="col">コミュニティ内での表示名</div>
+              </div>
+              <div class="form-group error-message-box">{{errorInvitationCommunityMemberName}}</div>
+              <div class="row crecive-box">
+                <div class="col">
+                  <div class="form-group">
+                    <input id="input-joining-member-name" type="text" class="form-control" v-model="joiningMemberName">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="JoiningCommunityProcess();">参加</button>
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- コミュニティトークルームモーダル -->
+      <!-- <div class="modal fade" id="community-talk-modal" tabindex="-1" role="dialog" aria-labelledby="community-talk-modal-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title">トークルーム♪</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row crecive-box" v-if="communityInfo !== '0'">
+                <div class="col relative-box">
+                  <span class="h1 community-talk-around icon-color"><i id="community-talk-image" class="fas fa-comments"></i></span>
+                  <div id="community-talk-box" class="border border-success" :style="{height: (memoryInputHeight * 0.70) + 'px'}">
+                    <div class="container-fluid">
+                      <div class="row community-talk-list-row" v-for="communityTalkInfo in sortCommunityTalkList">
+                        <div class="col-3" v-if="communityTalkInfo.userId === signInUser.uid"></div>
+                        <div class="col-9 community-talk-one-box relative-box">
+                          <span class="community-account-image-around"><img class="community-account-image" :src="communityTalkInfo.accountImagePath"></span>
+                          <p :class="'memory-list-content-' + communityTalkInfo.communityTalkKey" v-html="$options.filters.ReplaceNewLine(communityTalkInfo.message)"></p>
+                          <span class="memory-list-regist-date">{{communityTalkInfo.talkDate | PreviousDays}}&nbsp;{{communityTalkInfo.talkDate | RegistDateFormatToList}}</span>
+                        </div>
+                        <div class="col-3" v-if="communityTalkInfo.userId !== signInUser.uid"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row crecive-box" v-if="communityInfo !== '0'">
+                <div class="col">
+                  <textarea id="community-talk-input" class="form-control" v-model="communityTalkInput" :style="{height: (memoryInputHeight * 0.15) + 'px'}"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" v-on:click="CommunityTalk();">しゃべる</button>
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- コミュニティ脱退を確認するモーダル -->
+      <div class="modal fade" id="confirm-withdrawal-community-modal" tabindex="-1" role="dialog" aria-labelledby="confirm-withdrawal-community-center-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <img class="headimage" src="img/memoryslogo_transparent.png">&nbsp;<h5 class="modal-title" id="confirm-withdrawal-community-modal-center-title">本当にコミュニティから脱退しますか？</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">脱退対象コミュニティ名：{{(communityInfo && communityInfo.detailsInfo) ? communityInfo.detailsInfo.communityName : ''}}</div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-danger" v-on:click="WithdrawalCommunityProcess();">脱退する</button>
+              <button type="button" class="btn btn-outline-success" data-dismiss="modal">キャンセル</button>
             </div>
           </div>
         </div>
