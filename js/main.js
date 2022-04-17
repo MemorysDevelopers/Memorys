@@ -160,6 +160,9 @@ function Init() {
       // デバイス情報を取得する
       this.deviceInfo = GetDeviceInfo();
 
+      // アプリへのアクセスを管理者へ通知する
+      this.NotifyAccessToAdmin();
+
       firebase.initializeApp(FIREBASE_CONFIG);
 
       // ログイン状態の保持を「セッション」単位とする
@@ -3116,6 +3119,34 @@ function Init() {
         $(function() {
           $("html,body").animate({scrollTop:0}, 750);
         });
+      },
+      NotifyAccessToAdmin: function() {
+        // アプリへのアクセスを管理者へ通知する
+        if (DEVELOP_MODE === false) {
+          let self = this;
+          $(function() {
+            $.post('./Api/LINE/LineNotify.php', {
+              'accessMessage': 'Memorysにアクセスがありました。' + '\n' + '\n'
+                + 'デバイス=' + self.deviceInfo.DeviceType + '\n'
+                + 'スクリーンの幅=' + screen.width + '\n'
+                + 'スクリーンの高さ=' + screen.height + '\n'
+                + 'ブラウザのビューポートの幅=' + window.innerWidth + '\n'
+                + 'ブラウザのビューポートの高さ=' + window.innerHeight + '\n'
+                + 'デバイスピクセル比=' + window.devicePixelRatio + '\n'
+                + 'ブラウザのコードネーム=' + location.appCodeName + '\n'
+                + 'ブラウザ名=' + navigator.appName + '\n'
+                + 'ブラウザのバージョン=' + navigator.appVersion + '\n'
+                + 'ブラウザの使用言語=' + navigator.language + '\n'
+                + 'ブラウザのプラットフォーム=' + navigator.platform + '\n'
+                + 'プロトコル情報=' + location.protocol + '\n'
+                + 'サーチ情報=' + location.search + '\n'
+                + 'リファラー=' + document.referrer + '\n'
+                + 'ハッシュ=' + location.hash + '\n'
+                + 'タッチ操作可能=' + navigator.pointerEnabled + '\n'
+                + '最大同時タッチ数=' + navigator.maxTouchPoints
+            });
+          });
+        }
       },
     },
     filters: {
