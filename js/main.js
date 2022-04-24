@@ -4,7 +4,7 @@ function Init() {
     el: '#memorys',
     data: {
       // アプリバージョン
-      appVersion: '3.0',
+      appVersion: '4.1',
 
       // デバイス情報
       deviceInfo: {},
