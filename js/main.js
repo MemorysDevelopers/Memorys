@@ -234,7 +234,7 @@ function Init() {
       this.EventSaveCommunityTalkScrollTop();
     },
     computed: {
-      sortCommunityTalkList() {
+      SortCommunityTalkList() {
         return this.communityTalkList.slice().sort(function(communityTalkInfoBefore,communityTalkInfoAfter) {
           if( parseInt(communityTalkInfoBefore.communityTalkKey) < parseInt(communityTalkInfoAfter.communityTalkKey) ) return -1;
           if( parseInt(communityTalkInfoBefore.communityTalkKey) > parseInt(communityTalkInfoAfter.communityTalkKey) ) return 1;
@@ -3039,6 +3039,7 @@ function Init() {
                       talkDate: communityTalkListVal[communityTalkKey].talkDate,
                       userId: communityTalkListVal[communityTalkKey].userId,
                       accountImagePath: './img/AccountImage/' + communityTalkListVal[communityTalkKey].userId + '/account.jpg',
+                      readedId: (communityTalkListVal[communityTalkKey].readedId) ? communityTalkListVal[communityTalkKey].readedId : '',
                     });
                     // TODO ↑　画像無し時の対応をしたい
                     if (communityTalkCounter >= communityTalkListCount) {
@@ -3078,8 +3079,10 @@ function Init() {
                     talkDate: communityTalkListVal[communityTalkKey].talkDate,
                     userId: communityTalkListVal[communityTalkKey].userId,
                     accountImagePath: await self.GetAccountImagePath(communityTalkListVal[communityTalkKey].userId),
+                    readedId: (communityTalkListVal[communityTalkKey].readedId) ? communityTalkListVal[communityTalkKey].readedId : '',
                   });
                   if (communityTalkCounter >= communityTalkListCount) {
+                    self.AddReadedToCommunityTalk();
                     self.DownMaxScroll();
                     resolve();
                   }
@@ -3090,7 +3093,22 @@ function Init() {
           });
         });
       },
-      // 
+      // 閲覧したコミュニティトークへ既読を付ける
+      AddReadedToCommunityTalk: function() {
+        let readedIdList = [];
+        for (communityTalkInfo of this.SortCommunityTalkList.reverse()) {
+          readedIdList = communityTalkInfo.readedId.split(',');
+
+          // 既に同一の閲覧者が存在する場合、または投稿主の場合は何もしない
+          if (readedIdList.indexOf(this.signInUser.uid) === -1 && communityTalkInfo.userId !== this.signInUser.uid) {
+            readedIdList.splice(0, 0, this.signInUser.uid);
+
+            firebase.database().ref('CommunityTalk/' + this.communityInfo.detailsInfo.communityId + '/' + communityTalkInfo.communityTalkKey + '/readedId')
+              .set(this.$options.filters.TrimEndString(readedIdList.join(','), ','));
+          }
+        }
+      },
+      // コミュニティトークの閲覧スクロール位置を保存する
       EventSaveCommunityTalkScrollTop: function() {
         let self = this;
         $(window).scroll(function() {
@@ -3115,13 +3133,14 @@ function Init() {
 
         $('#community-talk-modal').modal('show');
       },
+      // ページトップへ移動する
       JumpPageTop: function() {
         $(function() {
           $("html,body").animate({scrollTop:0}, 750);
         });
       },
+      // アプリへのアクセスを管理者へ通知する
       NotifyAccessToAdmin: function() {
-        // アプリへのアクセスを管理者へ通知する
         if (DEVELOP_MODE === false) {
           let self = this;
           $(function() {
@@ -3210,6 +3229,19 @@ function Init() {
           text = text.substr(0, text.length - 1);
         }
         return text;
+      },
+      ConvertReadedUserToReadedCount: function(readedIdList) {
+        let readedCount = 0;
+        
+        if (readedIdList) {
+          for (readedId of readedIdList.split(',')) {
+            if (readedId) {
+              readedCount++;
+            }
+          }
+        }
+
+        return readedCount;
       },
     },
   });

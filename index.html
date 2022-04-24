@@ -566,12 +566,15 @@
         </div>
 
         <div class="row crecive-row crecive-box-ll"></div>
-        <div class="row community-talk-list-row" v-for="communityTalkInfo in sortCommunityTalkList">
+        <div class="row community-talk-list-row" v-for="communityTalkInfo in SortCommunityTalkList">
           <div class="col-3" v-if="communityTalkInfo.userId === signInUser.uid"></div>
           <div class="col-9 community-talk-one-box relative-box">
             <span class="community-account-image-around"><img class="community-account-image" :src="communityTalkInfo.accountImagePath"></span>
             <p :class="'memory-list-content-' + communityTalkInfo.communityTalkKey" v-html="$options.filters.ReplaceNewLine(communityTalkInfo.message)"></p>
             <span class="memory-list-regist-date">{{communityTalkInfo.talkDate | PreviousDays}}&nbsp;{{communityTalkInfo.talkDate | RegistDateFormatToList}}</span>
+            <div class="readed-count" v-if="$options.filters.ConvertReadedUserToReadedCount(communityTalkInfo.readedId) > 0 && communityTalkInfo.userId === signInUser.uid">
+              <i class="fas fa-check fa-fw"></i>&nbsp;{{communityTalkInfo.readedId | ConvertReadedUserToReadedCount}}
+            </div>
           </div>
           <div class="col-3" v-if="communityTalkInfo.userId !== signInUser.uid"></div>
         </div>
@@ -1262,7 +1265,7 @@
                   <span class="h1 community-talk-around icon-color"><i id="community-talk-image" class="fas fa-comments"></i></span>
                   <div id="community-talk-box" class="border border-success" :style="{height: (memoryInputHeight * 0.70) + 'px'}">
                     <div class="container-fluid">
-                      <div class="row community-talk-list-row" v-for="communityTalkInfo in sortCommunityTalkList">
+                      <div class="row community-talk-list-row" v-for="communityTalkInfo in SortCommunityTalkList">
                         <div class="col-3" v-if="communityTalkInfo.userId === signInUser.uid"></div>
                         <div class="col-9 community-talk-one-box relative-box">
                           <span class="community-account-image-around"><img class="community-account-image" :src="communityTalkInfo.accountImagePath"></span>

@@ -736,6 +736,15 @@ body {
   margin-right: 10px;
 }
 
+.readed-count {
+  bottom: 0;
+  left: -70px;
+  padding-right: 10px;
+  position: absolute;
+  text-align: right;
+  width: 70px;
+}
+
 
 /* 通知アニメーション */
 .notify-animation {
