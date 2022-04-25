@@ -35,8 +35,10 @@ try {
 
         $decodeTrend = urldecode($trend);
 
-        // ひらがな以外が含まれるトレンドを対象とする
-        if (preg_match('/[^あ-ん0-9\|□：\"\-]/', $decodeTrend) != 0) {
+        // 無効ワード以外が含まれるトレンドを対象とする
+        // ※無効ワードのみのトレンドについては除外
+        $notTrendWords = '事方様';
+        if (preg_match("/[^あ-ん0-9\|□：\"\-「」\.${notTrendWords}]/", $decodeTrend) != 0) {
           $selectTopTrends .= '"' . urlencode($decodeTrend) . '":"' . $trendCount . '",';
           $loopCount++;
         }
