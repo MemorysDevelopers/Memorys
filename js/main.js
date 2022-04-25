@@ -531,6 +531,8 @@ function Init() {
 
         return new Promise(resolve => {
           let memoryListTemp;
+          let memoryListFavorite;
+          let memoryListNormal;
 
           firebase.database().ref('Memorys/' + this.signInUser.uid).once('value', function(memorys) {
             let memoryVal = memorys.val();
@@ -564,7 +566,7 @@ function Init() {
                 }
               });
 
-              // お気に入りの思考メモを
+              // お気に入りの思考メモを優先して表示する
               Array.prototype.push.apply(memoryListTemp, memoryListFavorite);
               Array.prototype.push.apply(memoryListTemp, memoryListNormal);
             }
@@ -581,22 +583,42 @@ function Init() {
 
         return new Promise(resolve => {
           let taskListTemp;
+          let taskListFavorite;
+          let taskListNormal;
 
           firebase.database().ref('Tasks/' + this.signInUser.uid).once('value', function(tasks) {
             let taskVal = tasks.val();
             taskListTemp = [];
+            taskListFavorite = [];
+            taskListNormal = [];
 
             if (taskVal) {
               Object.keys(taskVal).reverse().forEach(function(taskKey) {
                 if (taskKey > 0 && taskVal[taskKey].isArchive == '0') {
-                  taskListTemp.push({
-                    taskKey: taskKey,
-                    task: taskVal[taskKey].content,
-                    registDate: taskVal[taskKey].registDate,
-                    previousDay: moment().diff(moment(taskVal[taskKey].registDate)),
-                  });
+                  if (taskVal[taskKey].isFavorite && taskVal[taskKey].isFavorite == '1') {
+                    taskListFavorite.push({
+                      taskKey: taskKey,
+                      task: taskVal[taskKey].content,
+                      registDate: taskVal[taskKey].registDate,
+                      previousDay: moment().diff(moment(taskVal[taskKey].registDate)),
+                      isFavorite: '1',
+                    });
+                  }
+                  else {
+                    taskListNormal.push({
+                      taskKey: taskKey,
+                      task: taskVal[taskKey].content,
+                      registDate: taskVal[taskKey].registDate,
+                      previousDay: moment().diff(moment(taskVal[taskKey].registDate)),
+                      isFavorite: '0',
+                    });
+                  }
                 }
               });
+
+              // お気に入りのタスクを優先して表示する
+              Array.prototype.push.apply(taskListTemp, taskListFavorite);
+              Array.prototype.push.apply(taskListTemp, taskListNormal);
             }
 
             resolve(taskListTemp);
@@ -2187,6 +2209,13 @@ function Init() {
               this.MoveMemoryList();
             }
           });
+      },
+      // タスクをお気に入り登録する
+      FavoriteTask: async function(taskInfo) {
+        await firebase.database().ref('Tasks/' + this.signInUser.uid + '/' + taskInfo.taskKey + '/isFavorite')
+          .set((taskInfo.isFavorite == '1') ? '0' : '1');
+        
+        this.MoveMemoryList();
       },
       // HTML用の改行タグを改行コードに変換する
       ReplaceNewLineReverse: function(text) {

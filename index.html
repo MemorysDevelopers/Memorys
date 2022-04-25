@@ -223,16 +223,19 @@
           <div class="row mt-3 memory-list-row shadow" v-for="memoryInfo in memoryList" v-show="listType === LIST_TYPE.LIST_MEMORYS">
             <p :class="'memory-list-content-' + memoryInfo.memoryKey" v-html="$options.filters.ReplaceNewLine(memoryInfo.content)"></p>
             <div class="memory-list-button-box text-right mb-1">
-              <button type="button" class="share-button btn btn-sm shadow-sm" :class="(memoryInfo.isShared == '1') ? 'btn-danger' : 'btn-success'" v-on:click="ConfirmShare(memoryInfo);"><i class="fas fa-share fa-fw"></i>{{ (memoryInfo.isShared == '1') ? "&nbsp;解除" : '' }}</button><button type="button" class="add-favorite-button btn btn-outline-success btn-sm shadow-sm"  :class="(memoryInfo.isFavorite == '1') ? 'favorite-memory' : ''" v-on:click="FavoriteMemory(memoryInfo);"><i class="fas fa-heart fa-fw"></i></button>
+              <button type="button" class="share-button btn btn-sm shadow-sm" :class="(memoryInfo.isShared == '1') ? 'btn-danger' : 'btn-success'" v-on:click="ConfirmShare(memoryInfo);"><i class="fas fa-share fa-fw"></i>{{ (memoryInfo.isShared == '1') ? "&nbsp;解除" : '' }}</button>
+              <button type="button" class="add-favorite-button btn btn-outline-success btn-sm shadow-sm"  :class="(memoryInfo.isFavorite == '1') ? 'favorite-memory' : ''" v-on:click="FavoriteMemory(memoryInfo);"><i class="fas fa-heart fa-fw"></i></button>
             </div>
             <span class="memory-list-regist-date">{{memoryInfo.registDate | PreviousDays}}&nbsp;{{memoryInfo.registDate | RegistDateFormatToList}}</span>
           </div>
           <div class="row mt-3 memory-list-row shadow" v-for="taskInfo in taskList" v-show="listType === LIST_TYPE.LIST_TASKS">
             <p :id="'task-list-content-' + taskInfo.taskKey" class="task-list-content" v-html="$options.filters.ReplaceTaskBox($options.filters.ReplaceNewLine(taskInfo.task))"></p>
-            <span class="memory-list-regist-date">{{taskInfo.registDate | PreviousDays}}&nbsp;{{taskInfo.registDate | RegistDateFormatToList}}
+            <div class="task-list-button-box text-right mb-1">
               <button type="button" class="share-button btn btn-sm btn-success shadow-sm" v-on:click="ConfirmArchive(taskInfo);"><i class="fas fa-file-archive"></i></button>
               <button type="button" class="task-edit-button btn btn-sm btn-success shadow-sm" v-on:click="ConfirmTaskEdit(taskInfo);"><i class="fas fa-pen"></i></button>
-            </span>
+              <button type="button" class="add-favorite-button btn btn-outline-success btn-sm shadow-sm"  :class="(taskInfo.isFavorite == '1') ? 'favorite-memory' : ''" v-on:click="FavoriteTask(taskInfo);"><i class="fas fa-heart fa-fw"></i></button>
+            </div>
+            <span class="memory-list-regist-date">{{taskInfo.registDate | PreviousDays}}&nbsp;{{taskInfo.registDate | RegistDateFormatToList}}</span>
           </div>
           <div class="row mb-6"></div>
           <button type="button" class="btn btn-outline-success memory-link-top shadow-sm" v-on:click="MoveTopPage();"><i class="fas fa-backspace fa-fw"></i>&nbsp;トップ</button>
