@@ -3146,7 +3146,7 @@ function Init() {
       // 閲覧したコミュニティトークへ既読を付ける
       AddReadedToCommunityTalk: function() {
         let readedIdList = [];
-        for (communityTalkInfo of this.SortCommunityTalkList.reverse()) {
+        for (communityTalkInfo of this.SortCommunityTalkList) {
           readedIdList = communityTalkInfo.readedId.split(',');
 
           // 既に同一の閲覧者が存在する場合、または投稿主の場合は何もしない
