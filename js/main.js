@@ -29,6 +29,8 @@ function Init() {
       memoryList: [],  // 思考リスト
       memoryShareList: [],  // シェア対象思考リスト
       confirmShareMemory: {},  // シェア確認対象思考メモ情報
+      memoryShareCountAll: 0,
+      memoryShareCountSelf: 0,
       topMemoryTrendList: [],
       visionImage: DEFAULT_ACCOUNT_IMAGE,
 
@@ -232,6 +234,9 @@ function Init() {
 
       // コミュニティトークの位置保持のためのイベントを定義
       this.EventSaveCommunityTalkScrollTop();
+
+      // 共感総数を取得するイベントを定義
+      this.EventCountGoodMemory();
     },
     computed: {
       SortCommunityTalkList() {
@@ -805,6 +810,24 @@ function Init() {
           this.SetShareAccountImagePath(this.memoryShareList);
           
         }.bind(this));
+      },
+      // 共感総数を取得する
+      EventCountGoodMemory: function() {
+        let self = this;
+        firebase.database().ref('ShareMemorys').on('value', function(memorys) {
+          self.memoryShareCountAll = 0;
+          self.memoryShareCountSelf = 0;
+
+          let memoryVal = memorys.val();
+          if (memoryVal) {
+            Object.keys(memoryVal).reverse().forEach(function(memoryKey) {
+              if (memoryVal[memoryKey].accountImageUserId === self.signInUser.uid) {
+                self.memoryShareCountSelf += (memoryVal[memoryKey].goodCount) ? parseInt(memoryVal[memoryKey].goodCount) : 0;
+              }
+              self.memoryShareCountAll += (memoryVal[memoryKey].goodCount) ? parseInt(memoryVal[memoryKey].goodCount) : 0;
+            });
+          }
+        });
       },
       // アドレスバーを除いたウィンドウ高さを取得する
       SetInnerWindowHeight: function() {
