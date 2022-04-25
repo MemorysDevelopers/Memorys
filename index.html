@@ -319,15 +319,15 @@
           </div>
         </div>
         <div class="row crecive-row"></div>
-        <hr color="#a9a9a9">
+        <hr color="#a9a9a9" v-if="memoryShareCountSelf > 0">
 
         <div class="row crecive-box" v-if="isAdminUser">
           <div class="col">共感総数(全て)：{{memoryShareCountAll}}</div>
         </div>
-        <div class="row crecive-box">
+        <div class="row crecive-box" v-if="memoryShareCountSelf > 0">
           <div class="col">共感総数：{{memoryShareCountSelf}}</div>
         </div>
-        <div class="row crecive-row"></div>
+        <div class="row crecive-row" v-if="memoryShareCountSelf > 0"></div>
         <hr color="#a9a9a9">
 
         <div class="row crecive-box">
