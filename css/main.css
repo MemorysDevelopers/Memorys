@@ -486,6 +486,13 @@ body {
   position: relative;
 }
 
+.favorite-memory {
+  color: #FF8298;
+}
+.memory-list-button-box {
+  width: 100%;
+}
+
 .memory-list-regist-date {
   bottom: 8px;
   font-size: 0.8rem;
@@ -535,6 +542,11 @@ body {
 
 .share-button {
   border-radius: 50px;
+  margin-left: 10px;
+}
+.add-favorite-button {
+  border-radius: 50px;
+  border: 1px solid rgb(1, 179, 1);
   margin-left: 10px;
 }
 

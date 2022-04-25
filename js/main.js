@@ -535,19 +535,38 @@ function Init() {
           firebase.database().ref('Memorys/' + this.signInUser.uid).once('value', function(memorys) {
             let memoryVal = memorys.val();
             memoryListTemp = [];
+            memoryListFavorite = [];
+            memoryListNormal = [];
 
             if (memoryVal) {
               Object.keys(memoryVal).reverse().forEach(function(memoryKey) {
                 if (memoryKey > 0) {
-                  memoryListTemp.push({
-                    memoryKey: memoryKey,
-                    content: memoryVal[memoryKey].content,
-                    isShared: (memoryVal[memoryKey].isShared && memoryVal[memoryKey].isShared == '1') ? '1' : '0',
-                    registDate: memoryVal[memoryKey].registDate,
-                    previousDay: moment().diff(moment(memoryVal[memoryKey].registDate)),
-                  });
+                  if (memoryVal[memoryKey].isFavorite && memoryVal[memoryKey].isFavorite == '1') {
+                    memoryListFavorite.push({
+                      memoryKey: memoryKey,
+                      content: memoryVal[memoryKey].content,
+                      isShared: (memoryVal[memoryKey].isShared && memoryVal[memoryKey].isShared == '1') ? '1' : '0',
+                      registDate: memoryVal[memoryKey].registDate,
+                      previousDay: moment().diff(moment(memoryVal[memoryKey].registDate)),
+                      isFavorite: '1',
+                    });
+                  }
+                  else {
+                    memoryListNormal.push({
+                      memoryKey: memoryKey,
+                      content: memoryVal[memoryKey].content,
+                      isShared: (memoryVal[memoryKey].isShared && memoryVal[memoryKey].isShared == '1') ? '1' : '0',
+                      registDate: memoryVal[memoryKey].registDate,
+                      previousDay: moment().diff(moment(memoryVal[memoryKey].registDate)),
+                      isFavorite: '0',
+                    });
+                  }
                 }
               });
+
+              // お気に入りの思考メモを
+              Array.prototype.push.apply(memoryListTemp, memoryListFavorite);
+              Array.prototype.push.apply(memoryListTemp, memoryListNormal);
             }
 
             resolve(memoryListTemp);
@@ -728,34 +747,6 @@ function Init() {
         }
 
         this.loadSearchIcon = '';
-      },
-      // 思考一覧ページへ遷移する
-      MoveMemoryList: async function() {
-
-        // 思考一覧ページへ遷移ログ
-        this.OutlogDebug('思考一覧ページへ遷移されました');
-        
-        // 思考メモリストを取得
-        this.memoryList = await this.GetMemoryList();
-        // splice()により、オブジェクトを反映する
-        this.memoryList.splice();
-
-        // タスクリストを取得
-        this.taskList = await this.GetTaskList();
-        this.taskList.splice();
-
-        // 初期化
-        this.isSearchAiLoding = false;
-        this.listAiSearchText = '';
-
-        this.page = this.PAGES.PAGE_LIST;
-
-        // 管理者へ思考メモリストにアクセスされた旨を通知
-        if (DEVELOP_MODE === false) {
-          $(function() {
-            //$.post('./Api/LINE/LineNotify.php', {'accessMessage': '思考メモリストにアクセスがありました。'});
-          });
-        }
       },
       // シェア思考リストを取得
       GetMemoryShareList: async function() {
@@ -942,6 +933,13 @@ function Init() {
         // シェア確認用モーダルを表示する
         this.confirmShareMemory = memoryInfo;
         $('#confirm-share-modal').modal('show');
+      },
+      // 思考メモをお気に入り登録する
+      FavoriteMemory: async function(memoryInfo) {
+        await firebase.database().ref('Memorys/' + this.signInUser.uid + '/' + memoryInfo.memoryKey + '/isFavorite')
+          .set((memoryInfo.isFavorite == '1') ? '0' : '1');
+        
+        this.MoveMemoryList();
       },
       // 共感カウントを+1する
       GoodMemory: function(memoryInfo, ignoreShareUserId) {
