@@ -212,8 +212,9 @@
           <div>{{(signInUser) ? signInUser : {} | ShowLoginUserName}}さんだけの</div>
           <div>{{listTitle}}一覧</div>
           <div class="crecive-box" v-if="listType === LIST_TYPE.LIST_MEMORYS">
-            <button type="button" id="ai-search-button" class="btn btn-outline-success shadow-sm" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
-            <button type="button" id="single-word-search-button" class="btn btn-outline-success shadow-sm" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
+            <button type="button" id="ai-search-button" class="btn btn-outline-success shadow-sm mb-2" v-on:click="ShowInputAiSearch();"><i id="search-robot-icon" class="fas fa-robot"></i>&nbsp;AI検索</button>
+            <button type="button" id="single-word-search-button" class="btn btn-outline-success shadow-sm mb-2" v-on:click="ShowInputSingleWordSearch();"><i class="fas fa-search"></i>&nbsp;単語検索</button>
+            <button type="button" id="share-only-search-button" class="btn btn-outline-success shadow-sm mb-2" v-on:click="SearchShareOnlyMemory();"><i class="fas fa-share"></i>&nbsp;シェアのみ</button>
           </div>
           <div class="icon-color top-right-box-list h4">
             <span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_MEMORYS);"><i class="fas fa-brain"></i></span>&nbsp;&nbsp;<span class="shadow-sm" v-on:click="SetListType(LIST_TYPE.LIST_TASKS);"><i class="fas fa-tasks"></i></span>

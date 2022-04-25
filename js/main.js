@@ -721,6 +721,11 @@ function Init() {
           }
         }
       },
+      // 思考一覧にて、シェアのみを表示する
+      SearchShareOnlyMemory: function() {
+        this.memoryList = this.memoryList.filter(memoryInfo => memoryInfo.isShared == '1');
+        this.memoryList.splice();
+      },
       // 検索中にロボットが動くアニメーションを実装
       StartLoadingSearch: function(searchType) {
         this.loadSearchIcon = searchType;
