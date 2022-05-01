@@ -286,6 +286,9 @@ function Init() {
         this.taskList = await this.GetTaskList();
         this.taskList.splice();
 
+        // トップトレンド情報を表示する
+        await this.GetTopTrendList();
+
         // 初期化
         this.isSearchAiLoding = false;
         this.listAiSearchText = '';
@@ -720,6 +723,23 @@ function Init() {
           } catch {
           }
         }
+      },
+      // よく使う単語検索を実行する
+      SearchByTrendWord: async function(searchTrendWord) {
+        // 検索結果を初期化
+        this.memoryList = [];
+        this.memoryList.splice();
+
+        // レンズによるロードアニメーションを開始する
+        this.StartLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
+
+        // AIによる類似した思考メモの検索
+        let searchSingleWordResult = await this.memoryAi.SearchSingleWord(searchTrendWord);
+        this.memoryList = searchSingleWordResult;
+        this.memoryList.splice();
+
+        // レンズによるロードアニメーションを終了する
+        this.StopMoveLoadingSearch(this.SEARCH_TYPES.SINGLE_WORD);
       },
       // 思考一覧にて、シェアのみを表示する
       SearchShareOnlyMemory: function() {
