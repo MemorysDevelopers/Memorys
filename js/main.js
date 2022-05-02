@@ -3077,6 +3077,9 @@ function Init() {
 
           // コミュニティ内のユーザーへ通知を行う
           self.CommunityTalkNotifyToCommunityMembers();
+
+          // アイデア傾向/思考傾向記録実行
+          self.RegistIdeaTrend(self.communityTalkInput, self.signInUser.uid);
         }
         this.communityTalkInput = '';
         this.ShowCommunityTalk();
