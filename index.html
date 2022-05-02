@@ -61,8 +61,19 @@
       <!-- ローディングウィンドウ -->
       <div id="loading-window" class="center-box-fixed" v-if="isLoading">
         <div class="center-box">
-          <div class="spinner-grow text-success" role="status">
+          <!-- <div class="spinner-grow text-success" role="status">
             <span class="sr-only">Loading...</span>
+          </div> -->
+          <div id="memoryslogo-loading">
+            <img id="memoryslogo-start" src="img/memoryslogo_start.png">
+            <img id="memoryslogo-middle" src="img/memoryslogo_middle.png">
+            <img id="memoryslogo-main" src="img/memoryslogo_main.png">
+          </div>
+          <div class="container-fluid">
+            <div class="row crecive-box">
+              <div class="col-7"></div>
+              <div class="col-5 text-left">ロード中<span id="memoryslogo-loading-dot">...</span></div>
+            </div>
           </div>
         </div>
       </div>

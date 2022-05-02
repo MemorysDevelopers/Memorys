@@ -419,6 +419,7 @@ function Init() {
 
         // ロードアイコンを表示
         this.isLoading = true;
+        this.MemorysLogoLoadingAnimation();
 
         // アイデア傾向/思考傾向記録実行ログ
         this.OutlogDebug('アイデア傾向/思考傾向記録が実行されました');
@@ -1235,6 +1236,7 @@ function Init() {
 
         // ロードアイコンを表示
         this.isLoading = true;
+        this.MemorysLogoLoadingAnimation();
 
         firebase.auth()
         .signInWithPopup(provider)
@@ -1620,6 +1622,7 @@ function Init() {
 
         // ロードアイコンを表示
         this.isLoading = true;
+        this.MemorysLogoLoadingAnimation();
 
         // アカウントイメージを更新する
         failedCount += (await this.UpdateAccountImage()) ? 0 : 1;
@@ -1974,6 +1977,7 @@ function Init() {
             try {
               // ロードアイコンを表示
               self.isLoading = true;
+              self.MemorysLogoLoadingAnimation();
 
               // 指定ユーザーのアイデアトレンド情報を削除する
               await self.DeleteIdeaTrend(userId);
@@ -2472,6 +2476,7 @@ function Init() {
         $(async function() {
           // ロードアイコンを表示
           self.isLoading = true;
+          self.MemorysLogoLoadingAnimation();
           
           // 画像からアイデアを読み取る
           let visionImageText = await self.ReadVisionImageText();
@@ -3260,6 +3265,36 @@ function Init() {
           $('#app-share-qrcode').html('');
           $('#app-share-qrcode').qrcode({text:APP_URL});
         });
+      },
+      // Memorysアイコンのローディングアニメーションを実行する
+      MemorysLogoLoadingAnimation: function() {
+        if (this.isLoading) {
+          const changeLogoTime = 500;
+          let self = this;
+          $(function() {
+            setTimeout(function() {
+              $('#memoryslogo-main').css('display', 'none');
+              $('#memoryslogo-start').css('display', 'inline');
+              $('#memoryslogo-loading-dot').text('.');
+              
+              setTimeout(function() {
+                $('#memoryslogo-start').css('display', 'none');
+                $('#memoryslogo-middle').css('display', 'inline');
+                $('#memoryslogo-loading-dot').text('..');
+
+                setTimeout(function() {
+                  $('#memoryslogo-middle').css('display', 'none');
+                  $('#memoryslogo-main').css('display', 'inline');
+                  $('#memoryslogo-loading-dot').text('...');
+
+                  self.MemorysLogoLoadingAnimation();
+
+                }, changeLogoTime);
+              }, changeLogoTime);
+            }, changeLogoTime);
+          });
+        }
+        return;
       },
     },
     filters: {

@@ -760,6 +760,12 @@ body {
   width: 70px;
 }
 
+#memoryslogo-loading img {
+  display: none;
+  height: 300px;
+  width: 300px;
+}
+
 
 /* 通知アニメーション */
 .notify-animation {
