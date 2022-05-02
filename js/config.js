@@ -11,6 +11,8 @@ const FIREBASE_CONFIG = {
 
 const DEFAULT_ACCOUNT_IMAGE = './img/memoryslogo_transparent.png';
 
+const APP_URL = 'https://yururito.gradation.jp/Memorys/';
+
 // Vue.config.errorHandler = function(err, vm, info) {
 // 	let logContent = String(err).replace(/(\r\n|\r|\n)/gi, ' ');
 // 	$(function() {

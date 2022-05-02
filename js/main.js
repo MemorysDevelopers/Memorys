@@ -5,6 +5,7 @@ function Init() {
     data: {
       // アプリバージョン
       appVersion: '4.1',
+      isShowAppShare: false,
 
       // デバイス情報
       deviceInfo: {},
@@ -3241,6 +3242,21 @@ function Init() {
             });
           });
         }
+      },
+      // アプリ共有用のQRコードを表示する
+      ShowAppShareQrCode: function() {
+
+        // アプリ共有ボタン押下ログ
+        this.OutlogDebug('アプリ共有ボタンが押下されました');
+
+        // アプリ共有用QRコードを表示する
+        this.isShowAppShare = true;
+
+        // QRコード表示
+        $(function() {
+          $('#app-share-qrcode').html('');
+          $('#app-share-qrcode').qrcode({text:APP_URL});
+        });
       },
     },
     filters: {

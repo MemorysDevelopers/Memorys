@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="./css/main.css">
 
     <script type="text/javascript" src="./js/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="./js/jquery.qrcode.min.js"></script>
     <script type="text/javascript" src="./js/bootstrap.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.9/firebase.js"></script>
     <script type="text/javascript" src="./js/Moment.min.js"></script>
@@ -166,7 +167,7 @@
               <button type="button" id="move-inquiry-button" class="btn btn-outline-success shadow-sm" v-on:click="MoveInquiryPage();"><i class="far fa-envelope"></i>&nbsp;お問い合わせ</button>
             </div>
             <div class="col-6 text-right">
-              <button type="button" id="app-explanation-button" class="btn btn-outline-success shadow-sm" data-toggle="modal" data-target="#app-explanation-modal"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
+              <button type="button" id="app-explanation-button" class="btn btn-outline-success shadow-sm" data-toggle="modal" data-target="#app-explanation-modal" v-on:click="isShowAppShare = false;"><i class="fas fa-brain fa-fw"></i>&nbsp;アプリについて</button>
             </div>
           </div>
           <div class="row crecive-row"></div>
@@ -693,9 +694,14 @@
             <div id="app-explanation-modal-body" class="modal-body shadow-sm">
               <div class="container-fluid">
                 <div class="row">
-                  <a href="https://yururito.gradation.jp/MemorysDevelopment/" target="_blank">
+                  <a href="https://yururito.gradation.jp/MemorysDevelopment/" target="_blank" class="mr-2">
                     <button type="button" class="btn btn-outline-success shadow-sm"><i class="fas fa-envelope-open-text"></i>&nbsp;Release Note</button>
                   </a>
+                  <button type="button" class="btn btn-outline-success shadow-sm" v-on:click="ShowAppShareQrCode();"><i class="fas fa-qrcode"></i>&nbsp;アプリ共有</button>
+                </div>
+                <div class="row crecive-row" v-if="isShowAppShare"></div>
+                <div class="row text-center" style="display:block;" v-if="isShowAppShare">
+                  <div id="app-share-qrcode"></div>
                 </div>
                 <div class="row crecive-row"></div>
                 <div class="row">
