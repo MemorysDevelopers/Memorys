@@ -765,6 +765,9 @@ body {
   height: 300px;
   width: 300px;
 }
+#memoryslogo-loading-text {
+  display: none;
+}
 
 
 /* 通知アニメーション */

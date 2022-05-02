@@ -3275,6 +3275,7 @@ function Init() {
             setTimeout(function() {
               $('#memoryslogo-main').css('display', 'none');
               $('#memoryslogo-start').css('display', 'inline');
+              $('#memoryslogo-loading-text').css('display', 'block');
               $('#memoryslogo-loading-dot').text('.');
               
               setTimeout(function() {
